@@ -89,6 +89,12 @@ namespace ModbusMultiTester.UI
 				}
 			}
 
+			// 背景パネルをクリックしたときに、最初のボックスにフォーカスを当てる
+			_panel.Click += (s, e) => {
+				_boxes[0].Focus();
+				_boxes[0].SelectAll();
+			};
+
 			// 初期化
 			SetIpAddress("127.0.0.1");
 			UpdateStyles(); // 色やフォントの適用
@@ -345,14 +351,23 @@ namespace ModbusMultiTester.UI
 
 		private void OnBoxKeyPress(object? sender, KeyPressEventArgs e, int index)
 		{
-			if (_readOnly) return; // ReadOnlyなら入力拒否
+			if (_readOnly) return;
 
+			// --- 4. ドット入力でのフォーカス移動 ---
+			if (e.KeyChar == '.' || e.KeyChar == '。')
+			{
+				if (index < 3)
+				{
+					_boxes[index + 1].Focus();
+					_boxes[index + 1].SelectAll();
+				}
+				e.Handled = true; // 文字としては入力させない
+				return;
+			}
+
+			// 数字と制御文字以外は拒否
 			if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
 			{
-				if (e.KeyChar == '.' || e.KeyChar == '。')
-				{
-					if (index < 3) _boxes[index + 1].Focus();
-				}
 				e.Handled = true;
 			}
 		}
@@ -394,21 +409,58 @@ namespace ModbusMultiTester.UI
 		{
 			if (sender is not TextBox tb) return;
 
-			// 矢印キー移動
+			// --- 全選択 (Ctrl+A) ---
+			if (e.Control && e.KeyCode == Keys.A)
+			{
+				tb.SelectAll();
+				e.SuppressKeyPress = true; // ビープ音防止
+				return;
+			}
+
+			// --- コピー (Ctrl+C) ---
+			if (e.Control && e.KeyCode == Keys.C)
+			{
+				if (tb.SelectionLength > 0)
+				{
+					// 選択範囲があれば標準のコピー
+					tb.Copy();
+				}
+				else
+				{
+					// 【重要】選択範囲がなければ「IP全体」をコピーする
+					Clipboard.SetText(this.Text);
+				}
+				e.SuppressKeyPress = true;
+				return;
+			}
+
+			// --- 貼り付け (Ctrl+V) ---
+			if (e.Control && e.KeyCode == Keys.V)
+			{
+				PasteIpAddress();
+				e.SuppressKeyPress = true;
+				return;
+			}
+
+			// --- 矢印移動 (既存ロジック) ---
 			if (e.KeyCode == Keys.Right && tb.SelectionStart == tb.TextLength && index < 3)
 			{
 				_boxes[index + 1].Focus();
+				_boxes[index + 1].SelectAll(); // 移動時に全選択すると連続操作しやすい
 				e.Handled = true;
 			}
 			else if (e.KeyCode == Keys.Left && tb.SelectionStart == 0 && index > 0)
 			{
 				_boxes[index - 1].Focus();
+				_boxes[index - 1].SelectAll();
 				e.Handled = true;
 			}
+			// バックスペースでの戻り
 			else if (e.KeyCode == Keys.Back && tb.TextLength == 0 && index > 0)
 			{
 				_boxes[index - 1].Focus();
-				_boxes[index - 1].SelectionStart = _boxes[index - 1].TextLength; // 末尾へ
+				_boxes[index - 1].SelectionStart = _boxes[index - 1].TextLength;
+				e.Handled = true;
 			}
 		}
 
@@ -440,6 +492,34 @@ namespace ModbusMultiTester.UI
 		{
 			if (tb == null) return "0";
 			return string.IsNullOrWhiteSpace(tb.Text) ? "0" : tb.Text;
+		}
+
+		// クリップボードからの貼り付け処理
+		private void PasteIpAddress()
+		{
+			if (Clipboard.ContainsText())
+			{
+				string text = Clipboard.GetText().Trim();
+				// ドット、カンマ、スペースなどで分割を試みる
+				var parts = text.Split(new[] { '.', ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+				if (parts.Length == 4)
+				{
+					// 4つの数字として解釈できるかチェック
+					bool valid = true;
+					byte[] bytes = new byte[4];
+					for (int i = 0; i < 4; i++)
+					{
+						if (!byte.TryParse(parts[i], out bytes[i])) valid = false;
+					}
+
+					if (valid)
+					{
+						for (int i = 0; i < 4; i++) _boxes[i].Text = bytes[i].ToString();
+						_boxes[3].Focus(); // 最後へフォーカス移動
+					}
+				}
+			}
 		}
 	}
 }

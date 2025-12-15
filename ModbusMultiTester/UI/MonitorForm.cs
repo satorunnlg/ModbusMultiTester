@@ -63,61 +63,57 @@ namespace ModbusMultiTester.UI
 
 		private void InitializeDataGridView()
 		{
-			// 標準の列自動生成を無効化（自分で定義するため）
 			dataGridView1.AutoGenerateColumns = false;
-
-			// データソースをセット
 			dataGridView1.DataSource = _bindingSource;
 
-			// 列定義
-			// DataPropertyName に MonitorItem のプロパティ名を指定することで紐づけます
-			var colAddr = new DataGridViewTextBoxColumn();
-			colAddr.DataPropertyName = "Address"; // MonitorItem.Address
-			colAddr.HeaderText = "アドレス";
-			colAddr.Name = "Address";
-			colAddr.Width = 80;
-			colAddr.ReadOnly = true; // アドレスは編集不可
-			colAddr.CellTemplate.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
-			colAddr.SortMode = DataGridViewColumnSortMode.NotSortable;
+			// --- 列定義 ---
 
-			var colValue = new DataGridViewTextBoxColumn();
-			colValue.DataPropertyName = "Value"; // MonitorItem.Value
-			colValue.HeaderText = "値";
-			colValue.Name = "Value";
-			colValue.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-			colValue.SortMode = DataGridViewColumnSortMode.NotSortable;
+			// 1. アドレス
+			var colAddr = new DataGridViewTextBoxColumn();
+			colAddr.DataPropertyName = "Address";
+			colAddr.HeaderText = "アドレス";
+			colAddr.Width = 70;
+			colAddr.ReadOnly = true;
+			colAddr.DefaultCellStyle.BackColor = Color.WhiteSmoke; // 編集不可色
+			colAddr.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+
+			// 2. 値 (Decimal)
+			var colVal = new DataGridViewTextBoxColumn();
+			colVal.DataPropertyName = "Value";
+			colVal.HeaderText = "10進"; // "値" から変更
+			colVal.Width = 70;
+			colVal.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+
+			// 3. Hex
+			var colHex = new DataGridViewTextBoxColumn();
+			colHex.DataPropertyName = "ValueHex"; // MonitorItemのプロパティ名
+			colHex.HeaderText = "16進";
+			colHex.Width = 60;
+			colHex.DefaultCellStyle.Font = new Font("Consolas", 9); // 等幅フォント推奨
+			colHex.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+			// 4. Binary
+			var colBin = new DataGridViewTextBoxColumn();
+			colBin.DataPropertyName = "ValueBin";
+			colBin.HeaderText = "2進";
+			colBin.Width = 120;
+			colBin.DefaultCellStyle.Font = new Font("Consolas", 9);
+			colBin.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+			// 5. ASCII
+			var colAscii = new DataGridViewTextBoxColumn();
+			colAscii.DataPropertyName = "ValueAscii";
+			colAscii.HeaderText = "ASCII";
+			colAscii.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill; // 残りを埋める
+			colAscii.DefaultCellStyle.Font = new Font("Consolas", 9);
 
 			dataGridView1.Columns.Clear();
-			dataGridView1.Columns.AddRange(colAddr, colValue);
+			dataGridView1.Columns.AddRange(colAddr, colVal, colHex, colBin, colAscii);
 
 			// 高速描画設定
 			typeof(DataGridView).InvokeMember("DoubleBuffered",
 				System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty,
 				null, dataGridView1, new object[] { true });
-
-			// セルの色変更イベント
-			dataGridView1.CellFormatting += DataGridView1_CellFormatting;
-		}
-
-		private void DataGridView1_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
-		{
-			// 値列（インデックス1）のみ色変更対象
-			if (e.ColumnIndex == 1 && e.RowIndex >= 0)
-			{
-				if (dataGridView1.Rows[e.RowIndex].DataBoundItem is MonitorItem item)
-				{
-					if (item.HasChanged)
-					{
-						e.CellStyle.BackColor = Color.LightYellow;
-						e.CellStyle.SelectionBackColor = Color.Gold;
-					}
-					else
-					{
-						e.CellStyle.BackColor = Color.White;
-						e.CellStyle.SelectionBackColor = SystemColors.Highlight;
-					}
-				}
-			}
 		}
 
 		private void SetupCustomControls()
@@ -184,28 +180,15 @@ namespace ModbusMultiTester.UI
 			_dataSource.ResetBindings(); // グリッドに反映
 		}
 
-		public void EnableGridEditing(bool enable, bool isMasterMode = false)
+		public void EnableGridEditing(bool enable)
 		{
 			if (!IsSettingsApplied)
 			{
 				dataGridView1.ReadOnly = true;
 				return;
 			}
-
-			// マスターモードの場合は、レジスタタイプによって編集可否を判断
-			if (isMasterMode && enable)
-			{
-				int typeIdx = RegisterTypeIndex;
-				// Coil (0x) と Holding Register (4x) のみ編集可能
-				// Discrete Input (1x) と Input Register (3x) は読み取り専用
-				bool isWritable = (typeIdx == 0 || typeIdx == 3);
-				dataGridView1.ReadOnly = !isWritable;
-			}
-			else
-			{
-				// スレーブモードまたは無効化の場合はそのまま
-				dataGridView1.ReadOnly = !enable;
-			}
+			// Grid全体ではなく「値」列だけ制御するのが望ましいが、簡易的に全体制御
+			dataGridView1.ReadOnly = !enable;
 			// アドレス列は常にReadOnly (InitializeDataGridViewで設定済み)
 		}
 
@@ -290,8 +273,6 @@ namespace ModbusMultiTester.UI
 	{
 		private ushort _address;
 		private ushort _value;
-		private ushort _previousValue;
-		private bool _hasChanged;
 
 		public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -299,10 +280,9 @@ namespace ModbusMultiTester.UI
 		{
 			_address = address;
 			_value = value;
-			_previousValue = value;
-			_hasChanged = false;
 		}
 
+		// アドレス (読み取り専用想定だがBindingのためsetも用意)
 		public ushort Address
 		{
 			get => _address;
@@ -316,6 +296,7 @@ namespace ModbusMultiTester.UI
 			}
 		}
 
+		// 元の値 (ushort)
 		public ushort Value
 		{
 			get => _value;
@@ -323,39 +304,74 @@ namespace ModbusMultiTester.UI
 			{
 				if (_value != value)
 				{
-					_previousValue = _value;
 					_value = value;
-					_hasChanged = true;
+					// 全プロパティの変更を通知してグリッドを更新させる
 					OnPropertyChanged(nameof(Value));
-					OnPropertyChanged(nameof(HasChanged));
+					OnPropertyChanged(nameof(ValueHex));
+					OnPropertyChanged(nameof(ValueBin));
+					OnPropertyChanged(nameof(ValueAscii));
 				}
 			}
 		}
 
-		public ushort PreviousValue
+		// 16進数表示 (例: FFFF)
+		public string ValueHex
 		{
-			get => _previousValue;
-		}
-
-		public bool HasChanged
-		{
-			get => _hasChanged;
+			get => _value.ToString("X4");
 			set
 			{
-				if (_hasChanged != value)
+				// 入力された16進文字列をパースしてValueにセット
+				if (ushort.TryParse(value, System.Globalization.NumberStyles.HexNumber, null, out ushort res))
 				{
-					_hasChanged = value;
-					OnPropertyChanged(nameof(HasChanged));
+					Value = res;
 				}
 			}
 		}
 
-		public void ResetChanged()
+		// 2進数表示 (例: 1111000011110000)
+		public string ValueBin
 		{
-			if (_hasChanged)
+			get => Convert.ToString(_value, 2).PadLeft(16, '0');
+			set
 			{
-				_hasChanged = false;
-				OnPropertyChanged(nameof(HasChanged));
+				try
+				{
+					// 入力された2進文字列をパース
+					// 空白除去などのサニタイズを入れても良い
+					string clean = value.Replace(" ", "");
+					Value = Convert.ToUInt16(clean, 2);
+				}
+				catch { /* 変換失敗時は無視、またはエラー通知 */ }
+			}
+		}
+
+		// ASCII表示 (2文字分)
+		public string ValueAscii
+		{
+			get
+			{
+				// 上位バイト・下位バイトを文字に変換 (非表示文字は '.' に置換などの工夫も可)
+				byte high = (byte)(_value >> 8);
+				byte low = (byte)(_value & 0xFF);
+
+				// 簡易的な表示 (制御文字対策等は必要に応じて追加)
+				char c1 = (high >= 32 && high <= 126) ? (char)high : '.';
+				char c2 = (low >= 32 && low <= 126) ? (char)low : '.';
+
+				return $"{c1}{c2}";
+			}
+			set
+			{
+				if (string.IsNullOrEmpty(value)) return;
+
+				// 入力文字から値を生成 (最大2文字まで有効とする)
+				byte high = 0;
+				byte low = 0;
+
+				if (value.Length > 0) high = (byte)value[0];
+				if (value.Length > 1) low = (byte)value[1];
+
+				Value = (ushort)((high << 8) | low);
 			}
 		}
 
