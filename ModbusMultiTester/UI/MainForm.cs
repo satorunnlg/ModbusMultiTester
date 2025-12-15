@@ -491,10 +491,8 @@ namespace ModbusMultiTester
 						// İ’è–¢”½‰f‚Ìƒ‚ƒjƒ^‚ÍƒXƒLƒbƒv
 						if (!monitor.IsSettingsApplied) continue;
 
-						// ššš ’Ç‰Á: ƒ}ƒXƒ^ƒ‚[ƒh‚Å‚àƒOƒŠƒbƒh•ÒW‚ğ‹–‰Â‚·‚é ššš
-						// ‚½‚¾‚µAInput(1x)‚ÆInputRegister(3x)‚Í‘‚«‚ß‚È‚¢‚Ì‚ÅFalse‚É‚·‚é
-						bool isWritable = (monitor.RegisterTypeIndex == 0 || monitor.RegisterTypeIndex == 3);
-						monitor.EnableGridEditing(isWritable);
+						// ãƒã‚¹ã‚¿ãƒ¼ãƒ¢ãƒ¼ãƒ‰ã§ã‚‚ç·¨é›†å¯èƒ½ã«ã™ã‚‹ï¼ˆãƒ¬ã‚¸ã‚¹ã‚¿ã‚¿ã‚¤ãƒ—ã«å¿œã˜ã¦ï¼‰
+						monitor.EnableGridEditing(true, isMasterMode: true);
 
 						// Šm’èÏ‚İ‚ÌƒvƒƒpƒeƒB‚ğg—p
 						ushort startAddr = monitor.CurrentStartAddress;

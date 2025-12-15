@@ -114,6 +114,35 @@ namespace ModbusMultiTester.UI
 			typeof(DataGridView).InvokeMember("DoubleBuffered",
 				System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty,
 				null, dataGridView1, new object[] { true });
+
+			// セルの色変更イベント
+			dataGridView1.CellFormatting += DataGridView1_CellFormatting;
+		}
+
+		private void DataGridView1_CellFormatting(object? sender, DataGridViewCellFormattingEventArgs e)
+		{
+			// 値列（10進, 16進, 2進, ASCII）のいずれかの場合に色変更対象
+			// 列インデックス: 0=Address, 1=Value(10進), 2=Hex, 3=Bin, 4=ASCII
+			if (e.ColumnIndex >= 1 && e.RowIndex >= 0)
+			{
+				if (dataGridView1.Rows[e.RowIndex].DataBoundItem is MonitorItem item)
+				{
+					if (item.HasChanged)
+					{
+						e.CellStyle.BackColor = Color.LightYellow;
+						e.CellStyle.SelectionBackColor = Color.Gold;
+					}
+					else
+					{
+						// デフォルト色に戻す（アドレス列以外）
+						if (e.ColumnIndex != 0)
+						{
+							e.CellStyle.BackColor = Color.White;
+							e.CellStyle.SelectionBackColor = SystemColors.Highlight;
+						}
+					}
+				}
+			}
 		}
 
 		private void SetupCustomControls()
@@ -180,15 +209,28 @@ namespace ModbusMultiTester.UI
 			_dataSource.ResetBindings(); // グリッドに反映
 		}
 
-		public void EnableGridEditing(bool enable)
+		public void EnableGridEditing(bool enable, bool isMasterMode = false)
 		{
 			if (!IsSettingsApplied)
 			{
 				dataGridView1.ReadOnly = true;
 				return;
 			}
-			// Grid全体ではなく「値」列だけ制御するのが望ましいが、簡易的に全体制御
-			dataGridView1.ReadOnly = !enable;
+
+			// マスターモードの場合は、レジスタタイプによって編集可否を判断
+			if (isMasterMode && enable)
+			{
+				int typeIdx = RegisterTypeIndex;
+				// Coil (0x) と Holding Register (4x) のみ編集可能
+				// Discrete Input (1x) と Input Register (3x) は読み取り専用
+				bool isWritable = (typeIdx == 0 || typeIdx == 3);
+				dataGridView1.ReadOnly = !isWritable;
+			}
+			else
+			{
+				// スレーブモードまたは無効化の場合はそのまま
+				dataGridView1.ReadOnly = !enable;
+			}
 			// アドレス列は常にReadOnly (InitializeDataGridViewで設定済み)
 		}
 
@@ -273,6 +315,8 @@ namespace ModbusMultiTester.UI
 	{
 		private ushort _address;
 		private ushort _value;
+		private ushort _previousValue;
+		private bool _hasChanged;
 
 		public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -280,6 +324,8 @@ namespace ModbusMultiTester.UI
 		{
 			_address = address;
 			_value = value;
+			_previousValue = value;
+			_hasChanged = false;
 		}
 
 		// アドレス (読み取り専用想定だがBindingのためsetも用意)
@@ -304,12 +350,15 @@ namespace ModbusMultiTester.UI
 			{
 				if (_value != value)
 				{
+					_previousValue = _value;
 					_value = value;
+					_hasChanged = true;
 					// 全プロパティの変更を通知してグリッドを更新させる
 					OnPropertyChanged(nameof(Value));
 					OnPropertyChanged(nameof(ValueHex));
 					OnPropertyChanged(nameof(ValueBin));
 					OnPropertyChanged(nameof(ValueAscii));
+					OnPropertyChanged(nameof(HasChanged));
 				}
 			}
 		}
@@ -372,6 +421,33 @@ namespace ModbusMultiTester.UI
 				if (value.Length > 1) low = (byte)value[1];
 
 				Value = (ushort)((high << 8) | low);
+			}
+		}
+
+		public ushort PreviousValue
+		{
+			get => _previousValue;
+		}
+
+		public bool HasChanged
+		{
+			get => _hasChanged;
+			set
+			{
+				if (_hasChanged != value)
+				{
+					_hasChanged = value;
+					OnPropertyChanged(nameof(HasChanged));
+				}
+			}
+		}
+
+		public void ResetChanged()
+		{
+			if (_hasChanged)
+			{
+				_hasChanged = false;
+				OnPropertyChanged(nameof(HasChanged));
 			}
 		}
 
