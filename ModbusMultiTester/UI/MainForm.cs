@@ -209,39 +209,36 @@ namespace ModbusMultiTester
 					}
 					catch (Exception ex) { AppLogger.Error($"Slave Write Error: {ex.Message}"); }
 				}
-				// --- MASTER MODE (V‹K’Ç‰Á) ---
+				// --- MASTER MODE ---
 				else if (radioButtonMaster.Checked && _modbusMaster != null)
 				{
-					// UIƒXƒŒƒbƒh‚©‚çŒÄ‚Î‚ê‚é‚ªA’ÊM‚ÍƒuƒƒbƒN‚·‚é‰Â”\«‚ª‚ ‚é‚½‚ßTask‚Å“¦‚ª‚·‚Ì‚ªƒxƒ^[
-					// ‚½‚¾‚µ‚±‚±‚Å‚ÍŠÈˆÕ“I‚É“¯ŠúŒÄ‚Ño‚µA‚Ü‚½‚Ífire-and-forget‚Ås‚¤
-					Task.Run(() =>
+					// åŒæœŸçš„ã«æ›¸ãè¾¼ã¿ã‚’å®Ÿè¡Œï¼ˆæ›¸ãè¾¼ã¿å®Œäº†ã‚’ç¢ºå®Ÿã«ã™ã‚‹ï¼‰
+					try
 					{
-						try
-						{
-							byte slaveId = (byte)numericUpDownSlaveID.Value;
-							int typeIdx = child.RegisterTypeIndex;
+						byte slaveId = (byte)numericUpDownSlaveID.Value;
+						int typeIdx = child.RegisterTypeIndex;
 
-							switch (typeIdx)
-							{
-								case 0: // Coil (Write Single Coil 0x05)
-									_modbusMaster.WriteSingleCoil(slaveId, addr, val != 0);
-									break;
-								case 3: // Holding Register (Write Single Register 0x06)
-									_modbusMaster.WriteSingleRegister(slaveId, addr, val);
-									break;
-								default:
-									// Input(1x), InputReg(3x) ‚ÍModbus‹KŠiãAƒ}ƒXƒ^‚©‚ç‘‚«‚ß‚È‚¢(Read Only)
-									// UI‘¤‚ÅƒGƒ‰[•\¦‚·‚é‚È‚Ç‚µ‚Ä‚à—Ç‚¢
-									AppLogger.Error($"Write Error: Input types are read-only.");
-									break;
-							}
-							AppLogger.Info($"Master Write: Addr={addr}, Val={val}");
-						}
-						catch (Exception ex)
+						switch (typeIdx)
 						{
-							AppLogger.Error($"Master Write Error: {ex.Message}");
+							case 0: // Coil (Write Single Coil 0x05)
+								_modbusMaster.WriteSingleCoil(slaveId, addr, val != 0);
+								AppLogger.Info($"Master Write: Coil Addr={addr}, Val={val}");
+								break;
+							case 3: // Holding Register (Write Single Register 0x06)
+								_modbusMaster.WriteSingleRegister(slaveId, addr, val);
+								AppLogger.Info($"Master Write: Register Addr={addr}, Val={val}");
+								break;
+							default:
+								// Input(1x), InputReg(3x) ã¯èª­ã¿å–ã‚Šå°‚ç”¨
+								AppLogger.Error($"Write Error: Input types are read-only.");
+								break;
 						}
-					});
+					}
+					catch (Exception ex)
+					{
+						AppLogger.Error($"Master Write Error: {ex.Message}");
+						MessageBox.Show($"æ›¸ãè¾¼ã¿ã‚¨ãƒ©ãƒ¼: {ex.Message}", "ã‚¨ãƒ©ãƒ¼", MessageBoxButtons.OK, MessageBoxIcon.Error);
+					}
 				}
 			};
 

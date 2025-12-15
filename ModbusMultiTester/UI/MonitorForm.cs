@@ -290,12 +290,25 @@ namespace ModbusMultiTester.UI
 
 					if (i < _dataSource.Count)
 					{
-						// MonitorItemのプロパティを更新
-						// 値が同じならNotifyされないので無駄な描画も起きない
-						_dataSource[i].Value = data[i];
+						var item = _dataSource[i];
+						ushort oldValue = item.Value;
+
+						// 値を更新
+						item.Value = data[i];
+
+						// 前回値と今回値を比較してHasChangedを設定
+						// これにより、差分がある時だけ色が変わる
+						if (oldValue != data[i])
+						{
+							item.HasChanged = true;
+						}
+						else
+						{
+							item.HasChanged = false;
+						}
 
 						// アドレスも念のため同期（ずれていなければ変更通知は飛ばない）
-						_dataSource[i].Address = (ushort)(CurrentStartAddress + i);
+						item.Address = (ushort)(CurrentStartAddress + i);
 					}
 				}
 			}
@@ -350,15 +363,14 @@ namespace ModbusMultiTester.UI
 			{
 				if (_value != value)
 				{
-					_previousValue = _value;
+					// 値を更新するが、HasChangedは自動的に変更しない
+					// （UpdateResultメソッドで前回値との比較により設定される）
 					_value = value;
-					_hasChanged = true;
 					// 全プロパティの変更を通知してグリッドを更新させる
 					OnPropertyChanged(nameof(Value));
 					OnPropertyChanged(nameof(ValueHex));
 					OnPropertyChanged(nameof(ValueBin));
 					OnPropertyChanged(nameof(ValueAscii));
-					OnPropertyChanged(nameof(HasChanged));
 				}
 			}
 		}
