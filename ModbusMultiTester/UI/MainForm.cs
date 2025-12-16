@@ -212,7 +212,7 @@ namespace ModbusMultiTester
 				// --- MASTER MODE ---
 				else if (radioButtonMaster.Checked && _modbusMaster != null)
 				{
-					// 同期的に書き込みを実行（書き込み完了を確実にする）
+					// 同期皁E��書き込みを実行（書き込み完亁E��確実にする�E�E
 					try
 					{
 						byte slaveId = (byte)numericUpDownSlaveID.Value;
@@ -488,7 +488,7 @@ namespace ModbusMultiTester
 						// �ݒ薢���f�̃��j�^�̓X�L�b�v
 						if (!monitor.IsSettingsApplied) continue;
 
-						// マスターモードでも編集可能にする（レジスタタイプに応じて）
+						// マスターモードでも編雁E��能にする�E�レジスタタイプに応じて�E�E
 						monitor.EnableGridEditing(true, isMasterMode: true);
 
 						// �m��ς݂̃v���p�e�B���g�p
