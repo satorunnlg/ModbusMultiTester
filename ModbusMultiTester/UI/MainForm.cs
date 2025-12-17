@@ -179,6 +179,46 @@ namespace ModbusMultiTester
 
         // --- UIイベントハンドラー ---
 
+        /// <summary>
+        /// NIC一覧を更新する
+        /// </summary>
+        private void buttonNicRefresh_Click(object sender, EventArgs e)
+        {
+            // 現在選択されているIPアドレスを保存
+            IPAddress? currentIp = null;
+            if (comboBoxSrcIP.SelectedItem is NicOption current)
+            {
+                currentIp = current.Ip;
+            }
+
+            // NIC一覧を再取得
+            InitializeNetworking();
+
+            // 同じIPアドレスがあれば再選択、なければ先頭を選択
+            if (currentIp != null)
+            {
+                bool found = false;
+                for (int i = 0; i < comboBoxSrcIP.Items.Count; i++)
+                {
+                    if (comboBoxSrcIP.Items[i] is NicOption option &&
+                        option.Ip.Equals(currentIp))
+                    {
+                        comboBoxSrcIP.SelectedIndex = i;
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    comboBoxSrcIP.SelectedIndex = 0; // デフォルトを選択
+                }
+            }
+
+            // ログに記録
+            AppLogger.Info("NIC list refreshed");
+        }
+
         private void toolStripButtonAddPanel_Click(object sender, EventArgs e)
         {
             AddMonitorWindow();
@@ -349,6 +389,7 @@ namespace ModbusMultiTester
             numericUpDownTimeout.Enabled = !isConnecting;
             checkBoxOneShot.Enabled = !isConnecting;
             comboBoxSrcIP.Enabled = !isConnecting;
+            buttonNicRefresh.Enabled = !isConnecting;
 
             // モード切替のロック
             groupBoxMode.Enabled = !isConnecting;
@@ -376,6 +417,7 @@ namespace ModbusMultiTester
             numericUpDown1.Enabled = !isListening; // Port
             numericUpDown2.Enabled = !isListening; // UnitID
             comboBoxSrcIP.Enabled = !isListening;
+            buttonNicRefresh.Enabled = !isListening;
 
             // モード切替のロック
             groupBoxMode.Enabled = !isListening;

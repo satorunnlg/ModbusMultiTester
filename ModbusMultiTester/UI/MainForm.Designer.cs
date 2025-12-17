@@ -204,7 +204,8 @@
 			buttonNicRefresh.TabIndex = 1;
 			buttonNicRefresh.Text = "更新";
 			buttonNicRefresh.UseVisualStyleBackColor = true;
-			// 
+			buttonNicRefresh.Click += buttonNicRefresh_Click;
+			//
 			// groupBoxSetting
 			// 
 			tableLayoutPanel1.SetColumnSpan(groupBoxSetting, 2);
