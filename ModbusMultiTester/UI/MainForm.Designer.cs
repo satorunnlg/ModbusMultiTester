@@ -35,7 +35,9 @@
 			radioButtonMaster = new RadioButton();
 			radioButtonSlave = new RadioButton();
 			groupBox2 = new GroupBox();
+			tableLayoutPanel5 = new TableLayoutPanel();
 			comboBoxSrcIP = new ComboBox();
+			buttonNicRefresh = new Button();
 			groupBoxSetting = new GroupBox();
 			panelSlave = new Panel();
 			tableLayoutPanel3 = new TableLayoutPanel();
@@ -57,16 +59,17 @@
 			ipAddressInputDest = new ModbusMultiTester.UI.IpAddressInput();
 			label7 = new Label();
 			numericUpDownTimeout = new NumericUpDown();
+			checkBoxOneShot = new CheckBox();
 			toolStrip1 = new ToolStrip();
 			toolStripButtonAddPanel = new ToolStripButton();
 			toolStripLabel1 = new ToolStripLabel();
 			toolStripButton2 = new ToolStripButton();
 			toolStripButton3 = new ToolStripButton();
-			checkBoxOneShot = new CheckBox();
 			tableLayoutPanel1.SuspendLayout();
 			groupBoxMode.SuspendLayout();
 			tableLayoutPanel4.SuspendLayout();
 			groupBox2.SuspendLayout();
+			tableLayoutPanel5.SuspendLayout();
 			groupBoxSetting.SuspendLayout();
 			panelSlave.SuspendLayout();
 			tableLayoutPanel3.SuspendLayout();
@@ -156,7 +159,7 @@
 			// 
 			// groupBox2
 			// 
-			groupBox2.Controls.Add(comboBoxSrcIP);
+			groupBox2.Controls.Add(tableLayoutPanel5);
 			groupBox2.Dock = DockStyle.Fill;
 			groupBox2.Location = new Point(552, 3);
 			groupBox2.Name = "groupBox2";
@@ -165,15 +168,42 @@
 			groupBox2.TabStop = false;
 			groupBox2.Text = "ソースIP";
 			// 
+			// tableLayoutPanel5
+			// 
+			tableLayoutPanel5.ColumnCount = 2;
+			tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+			tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 60F));
+			tableLayoutPanel5.Controls.Add(comboBoxSrcIP, 0, 0);
+			tableLayoutPanel5.Controls.Add(buttonNicRefresh, 1, 0);
+			tableLayoutPanel5.Dock = DockStyle.Fill;
+			tableLayoutPanel5.Location = new Point(3, 19);
+			tableLayoutPanel5.Name = "tableLayoutPanel5";
+			tableLayoutPanel5.RowCount = 1;
+			tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+			tableLayoutPanel5.Size = new Size(538, 27);
+			tableLayoutPanel5.TabIndex = 1;
+			// 
 			// comboBoxSrcIP
 			// 
 			comboBoxSrcIP.Dock = DockStyle.Fill;
 			comboBoxSrcIP.DropDownStyle = ComboBoxStyle.DropDownList;
 			comboBoxSrcIP.FormattingEnabled = true;
-			comboBoxSrcIP.Location = new Point(3, 19);
+			comboBoxSrcIP.Location = new Point(3, 2);
+			comboBoxSrcIP.Margin = new Padding(3, 2, 3, 3);
 			comboBoxSrcIP.Name = "comboBoxSrcIP";
-			comboBoxSrcIP.Size = new Size(538, 23);
+			comboBoxSrcIP.Size = new Size(472, 23);
 			comboBoxSrcIP.TabIndex = 0;
+			// 
+			// buttonNicRefresh
+			// 
+			buttonNicRefresh.Dock = DockStyle.Fill;
+			buttonNicRefresh.Location = new Point(481, 2);
+			buttonNicRefresh.Margin = new Padding(3, 2, 3, 2);
+			buttonNicRefresh.Name = "buttonNicRefresh";
+			buttonNicRefresh.Size = new Size(54, 23);
+			buttonNicRefresh.TabIndex = 1;
+			buttonNicRefresh.Text = "更新";
+			buttonNicRefresh.UseVisualStyleBackColor = true;
 			// 
 			// groupBoxSetting
 			// 
@@ -446,6 +476,17 @@
 			numericUpDownTimeout.TextAlign = HorizontalAlignment.Right;
 			numericUpDownTimeout.Value = new decimal(new int[] { 5000, 0, 0, 0 });
 			// 
+			// checkBoxOneShot
+			// 
+			checkBoxOneShot.AutoSize = true;
+			checkBoxOneShot.Dock = DockStyle.Fill;
+			checkBoxOneShot.Location = new Point(371, 63);
+			checkBoxOneShot.Name = "checkBoxOneShot";
+			checkBoxOneShot.Size = new Size(162, 24);
+			checkBoxOneShot.TabIndex = 8;
+			checkBoxOneShot.Text = "ワンショットモード";
+			checkBoxOneShot.UseVisualStyleBackColor = true;
+			// 
 			// toolStrip1
 			// 
 			toolStrip1.CanOverflow = false;
@@ -496,17 +537,6 @@
 			toolStripButton3.Text = "縦に整列";
 			toolStripButton3.Click += toolStripButton3_Click;
 			// 
-			// checkBoxOneShot
-			// 
-			checkBoxOneShot.AutoSize = true;
-			checkBoxOneShot.Dock = DockStyle.Fill;
-			checkBoxOneShot.Location = new Point(371, 63);
-			checkBoxOneShot.Name = "checkBoxOneShot";
-			checkBoxOneShot.Size = new Size(162, 24);
-			checkBoxOneShot.TabIndex = 8;
-			checkBoxOneShot.Text = "ワンショットモード";
-			checkBoxOneShot.UseVisualStyleBackColor = true;
-			// 
 			// MainForm
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
@@ -524,6 +554,7 @@
 			tableLayoutPanel4.ResumeLayout(false);
 			tableLayoutPanel4.PerformLayout();
 			groupBox2.ResumeLayout(false);
+			tableLayoutPanel5.ResumeLayout(false);
 			groupBoxSetting.ResumeLayout(false);
 			panelSlave.ResumeLayout(false);
 			tableLayoutPanel3.ResumeLayout(false);
@@ -580,5 +611,7 @@
 		private NumericUpDown numericUpDownTimeout;
 		private Button button1;
 		private CheckBox checkBoxOneShot;
+		private TableLayoutPanel tableLayoutPanel5;
+		private Button buttonNicRefresh;
 	}
 }
