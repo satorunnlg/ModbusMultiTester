@@ -63,6 +63,8 @@
 			toolStrip1 = new ToolStrip();
 			toolStripButtonAddPanel = new ToolStripButton();
 			toolStripLabel1 = new ToolStripLabel();
+			toolStripButtonInfo = new ToolStripButton();
+			toolStripSeparator1 = new ToolStripSeparator();
 			toolStripButton2 = new ToolStripButton();
 			toolStripButton3 = new ToolStripButton();
 			tableLayoutPanel1.SuspendLayout();
@@ -205,7 +207,7 @@
 			buttonNicRefresh.Text = "更新";
 			buttonNicRefresh.UseVisualStyleBackColor = true;
 			buttonNicRefresh.Click += buttonNicRefresh_Click;
-			//
+			// 
 			// groupBoxSetting
 			// 
 			tableLayoutPanel1.SetColumnSpan(groupBoxSetting, 2);
@@ -480,6 +482,8 @@
 			// checkBoxOneShot
 			// 
 			checkBoxOneShot.AutoSize = true;
+			checkBoxOneShot.Checked = true;
+			checkBoxOneShot.CheckState = CheckState.Checked;
 			checkBoxOneShot.Dock = DockStyle.Fill;
 			checkBoxOneShot.Location = new Point(371, 63);
 			checkBoxOneShot.Name = "checkBoxOneShot";
@@ -493,7 +497,7 @@
 			toolStrip1.CanOverflow = false;
 			toolStrip1.GripMargin = new Padding(0);
 			toolStrip1.GripStyle = ToolStripGripStyle.Hidden;
-			toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonAddPanel, toolStripLabel1, toolStripButton2, toolStripButton3 });
+			toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonAddPanel, toolStripLabel1, toolStripButtonInfo, toolStripSeparator1, toolStripButton2, toolStripButton3 });
 			toolStrip1.Location = new Point(0, 173);
 			toolStrip1.Name = "toolStrip1";
 			toolStrip1.RenderMode = ToolStripRenderMode.System;
@@ -507,14 +511,31 @@
 			toolStripButtonAddPanel.Image = (Image)resources.GetObject("toolStripButtonAddPanel.Image");
 			toolStripButtonAddPanel.ImageTransparentColor = Color.Magenta;
 			toolStripButtonAddPanel.Name = "toolStripButtonAddPanel";
-			toolStripButtonAddPanel.Size = new Size(77, 22);
-			toolStripButtonAddPanel.Text = "＋パネル追加";
+			toolStripButtonAddPanel.Size = new Size(104, 22);
+			toolStripButtonAddPanel.Text = "＋モニタパネル追加";
 			toolStripButtonAddPanel.Click += toolStripButtonAddPanel_Click;
 			// 
 			// toolStripLabel1
 			// 
 			toolStripLabel1.Name = "toolStripLabel1";
 			toolStripLabel1.Size = new Size(0, 22);
+			// 
+			// toolStripButtonInfo
+			// 
+			toolStripButtonInfo.Alignment = ToolStripItemAlignment.Right;
+			toolStripButtonInfo.DisplayStyle = ToolStripItemDisplayStyle.Text;
+			toolStripButtonInfo.Image = (Image)resources.GetObject("toolStripButtonInfo.Image");
+			toolStripButtonInfo.ImageTransparentColor = Color.Magenta;
+			toolStripButtonInfo.Name = "toolStripButtonInfo";
+			toolStripButtonInfo.Size = new Size(60, 22);
+			toolStripButtonInfo.Text = "ソフト情報";
+			toolStripButtonInfo.Click += toolStripButtonInfo_Click;
+			// 
+			// toolStripSeparator1
+			// 
+			toolStripSeparator1.Alignment = ToolStripItemAlignment.Right;
+			toolStripSeparator1.Name = "toolStripSeparator1";
+			toolStripSeparator1.Size = new Size(6, 25);
 			// 
 			// toolStripButton2
 			// 
@@ -614,5 +635,7 @@
 		private CheckBox checkBoxOneShot;
 		private TableLayoutPanel tableLayoutPanel5;
 		private Button buttonNicRefresh;
+		private ToolStripButton toolStripButtonInfo;
+		private ToolStripSeparator toolStripSeparator1;
 	}
 }
