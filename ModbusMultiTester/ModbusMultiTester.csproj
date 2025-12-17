@@ -6,13 +6,12 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <AssemblyTitle>ModbusMultiTester</AssemblyTitle>
-    <AssemblyProduct>ModbusMultiTester</AssemblyProduct>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
-    <AssemblyCopyright>Copyright © 2025 satorunnlg</AssemblyCopyright>
-    <AssemblyCompany>satorunnlg</AssemblyCompany>
-    <AssemblyDescription>ModbusMultiTester - Modbus TCP Master/Slave テストツール
+    <Product>ModbusMultiTester</Product>
+    <Version>1.0.0.0</Version>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Copyright>Copyright © 2025 satorunnlg</Copyright>
+    <Company>satorunnlg</Company>
+    <Description>ModbusMultiTester - Modbus TCP Master/Slave テストツール
 
 MIT License
 

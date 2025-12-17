@@ -14,7 +14,7 @@ namespace ModbusMultiTester.UI
 		public InfoForm()
 		{
 			InitializeComponent();
-			this.Text = String.Format("{0} のバージョン情報", AssemblyTitle);
+			this.Text = String.Format("{0} のバージョン情報", AssemblyProduct);
 			this.labelProductName.Text = AssemblyProduct;
 			this.labelVersion.Text = String.Format("バージョン {0}", AssemblyVersion);
 			this.labelCopyright.Text = AssemblyCopyright;
