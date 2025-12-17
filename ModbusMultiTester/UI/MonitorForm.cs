@@ -311,6 +311,9 @@ namespace ModbusMultiTester.UI
                         item.Address = (ushort)(CurrentStartAddress + i);
                     }
                 }
+
+                // HasChangedの変更を反映させるためにDataGridViewを再描画
+                dataGridView1.Invalidate();
             }
             else
             {
