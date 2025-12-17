@@ -25,6 +25,7 @@ namespace ModbusMultiTester
 		private TcpClient? _masterClient;
 		private IModbusMaster? _modbusMaster;
 		private System.Windows.Forms.Timer _pollTimer;
+		private bool _isPolling = false; // タイマー処理の重複実行を防ぐフラグ
 
 		// --- Slave用メンバー ---
 		private TcpListener? _slaveListener;
@@ -461,6 +462,10 @@ namespace ModbusMultiTester
 				// UIロック
 				buttonConnect.Enabled = false;
 
+				// プログレスバー表示開始
+				toolStripProgressBarStatus.Style = ProgressBarStyle.Marquee;
+				toolStripProgressBarStatus.Visible = true;
+
 				// IP/Port設定
 				IPAddress sourceIp = IPAddress.Any;
 				if (comboBoxSrcIP.SelectedItem is NicOption nic) sourceIp = nic.Ip;
@@ -472,7 +477,7 @@ namespace ModbusMultiTester
 				int targetPort = (int)numericUpDownPort.Value;
 
 				AppLogger.Info($"Connecting to {targetIp}:{targetPort}...");
-				await _masterClient.ConnectAsync(targetIp, targetPort);
+				await _masterClient.ConnectAsync(targetIp, targetPort).ConfigureAwait(false);
 
 				// Modbus構築
 				var adapter = new LoggingAdapter(_masterClient);
@@ -493,7 +498,7 @@ namespace ModbusMultiTester
 				{
 					// ワンショットモード: 1回だけポーリングして切断
 					AppLogger.Info("One-shot mode: Polling once...");
-					await ExecuteOneShotPoll();
+					await ExecuteOneShotPoll().ConfigureAwait(false);
 					DisconnectMaster();
 				}
 				else
@@ -511,6 +516,8 @@ namespace ModbusMultiTester
 			}
 			finally
 			{
+				// プログレスバー非表示
+				toolStripProgressBarStatus.Visible = false;
 				buttonConnect.Enabled = true;
 			}
 		}
@@ -591,12 +598,24 @@ namespace ModbusMultiTester
 
 		private async void PollTimer_Tick(object sender, EventArgs e)
 		{
+			// 前回の処理がまだ完了していない場合はスキップ
+			if (_isPolling)
+			{
+				AppLogger.Error("PollTimer_Tick: Previous poll still in progress, skipping this tick");
+				return;
+			}
+
+			_isPolling = true;
 			_pollTimer.Stop();
 
 			if (radioButtonMaster.Checked)
 			{
 				// --- MASTER MODE ---
-				if (_modbusMaster == null) return;
+				if (_modbusMaster == null)
+				{
+					_isPolling = false;
+					return;
+				}
 
 				try
 				{
@@ -644,6 +663,7 @@ namespace ModbusMultiTester
 				}
 				finally
 				{
+					_isPolling = false;
 					if (_masterClient != null && _masterClient.Connected) _pollTimer.Start();
 					else DisconnectMaster();
 				}
@@ -651,45 +671,52 @@ namespace ModbusMultiTester
 			else
 			{
 				// --- SLAVE MODE ---
-				if (_mySlave != null)
+				try
 				{
-					var monitors = this.MdiChildren.OfType<MonitorForm>().ToList();
-					foreach (var monitor in monitors)
+					if (_mySlave != null)
 					{
-						// 設定未反映なら何もしない(グリッド更新しない)
-						if (!monitor.IsSettingsApplied) continue;
-
-						monitor.EnableGridEditing(true);
-
-						ushort startAddr = monitor.CurrentStartAddress;
-						ushort count = monitor.CurrentCount;
-						int typeIdx = monitor.RegisterTypeIndex;
-
-						try
+						var monitors = this.MdiChildren.OfType<MonitorForm>().ToList();
+						foreach (var monitor in monitors)
 						{
-							ushort[] data = new ushort[count];
-							// DataStoreから読み出し
-							switch (typeIdx)
+							// 設定未反映なら何もしない(グリッド更新しない)
+							if (!monitor.IsSettingsApplied) continue;
+
+							monitor.EnableGridEditing(true);
+
+							ushort startAddr = monitor.CurrentStartAddress;
+							ushort count = monitor.CurrentCount;
+							int typeIdx = monitor.RegisterTypeIndex;
+
+							try
 							{
-								case 0:
-									var coils = _mySlave.DataStore.CoilDiscretes.ReadPoints(startAddr, count);
-									data = coils.Select(b => (ushort)(b ? 1 : 0)).ToArray();
-									break;
-								case 1:
-									var inputs = _mySlave.DataStore.CoilInputs.ReadPoints(startAddr, count);
-									data = inputs.Select(b => (ushort)(b ? 1 : 0)).ToArray();
-									break;
-								case 2:
-									data = _mySlave.DataStore.InputRegisters.ReadPoints(startAddr, count);
-									break;
-								case 3:
-									data = _mySlave.DataStore.HoldingRegisters.ReadPoints(startAddr, count);
-									break;
+								ushort[] data = new ushort[count];
+								// DataStoreから読み出し
+								switch (typeIdx)
+								{
+									case 0:
+										var coils = _mySlave.DataStore.CoilDiscretes.ReadPoints(startAddr, count);
+										data = coils.Select(b => (ushort)(b ? 1 : 0)).ToArray();
+										break;
+									case 1:
+										var inputs = _mySlave.DataStore.CoilInputs.ReadPoints(startAddr, count);
+										data = inputs.Select(b => (ushort)(b ? 1 : 0)).ToArray();
+										break;
+									case 2:
+										data = _mySlave.DataStore.InputRegisters.ReadPoints(startAddr, count);
+										break;
+									case 3:
+										data = _mySlave.DataStore.HoldingRegisters.ReadPoints(startAddr, count);
+										break;
+								}
+								monitor.UpdateResult(data, true);
 							}
-							monitor.UpdateResult(data, true);
+							catch { }
 						}
-						catch { }
 					}
+				}
+				finally
+				{
+					_isPolling = false;
 					_pollTimer.Start();
 				}
 			}
@@ -714,6 +741,10 @@ namespace ModbusMultiTester
 
 			try
 			{
+				// プログレスバー表示開始
+				toolStripProgressBarStatus.Style = ProgressBarStyle.Marquee;
+				toolStripProgressBarStatus.Visible = true;
+
 				// 1. IP & Port 設定
 				IPAddress listenIp = IPAddress.Any;
 				if (comboBoxSrcIP.SelectedItem is NicOption nic)
@@ -745,12 +776,20 @@ namespace ModbusMultiTester
 				// 画面更新用タイマー開始
 				_pollTimer.Interval = (int)numericUpDownInterval.Value;
 				_pollTimer.Start();
+
+				// プログレスバー非表示
+				toolStripProgressBarStatus.Visible = false;
 			}
 			catch (Exception ex)
 			{
 				MessageBox.Show($"待受開始エラー: {ex.Message}", "Listen Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				AppLogger.Error($"Listen Error: {ex.GetType().Name} - {ex.Message}");
 				StopSlave();
+			}
+			finally
+			{
+				// プログレスバー非表示（エラー時も確実に非表示）
+				toolStripProgressBarStatus.Visible = false;
 			}
 		}
 
