@@ -29,7 +29,7 @@ Third-Party Libraries:
 NModbus 3.0.81
 Copyright (c) NModbus Contributors
 Licensed under the MIT License
-https://github.com/NModbus/NModbus</AssemblyDescription>
+https://github.com/NModbus/NModbus</Description>
   </PropertyGroup>
 
   <ItemGroup>
