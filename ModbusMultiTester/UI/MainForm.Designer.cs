@@ -67,6 +67,8 @@
 			toolStripSeparator1 = new ToolStripSeparator();
 			toolStripButton2 = new ToolStripButton();
 			toolStripButton3 = new ToolStripButton();
+			statusStrip1 = new StatusStrip();
+			toolStripProgressBarStatus = new ToolStripProgressBar();
 			tableLayoutPanel1.SuspendLayout();
 			groupBoxMode.SuspendLayout();
 			tableLayoutPanel4.SuspendLayout();
@@ -84,6 +86,7 @@
 			((System.ComponentModel.ISupportInitialize)numericUpDownInterval).BeginInit();
 			((System.ComponentModel.ISupportInitialize)numericUpDownTimeout).BeginInit();
 			toolStrip1.SuspendLayout();
+			statusStrip1.SuspendLayout();
 			SuspendLayout();
 			// 
 			// tableLayoutPanel1
@@ -559,11 +562,26 @@
 			toolStripButton3.Text = "縦に整列";
 			toolStripButton3.Click += toolStripButton3_Click;
 			// 
+			// statusStrip1
+			// 
+			statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripProgressBarStatus });
+			statusStrip1.Location = new Point(0, 737);
+			statusStrip1.Name = "statusStrip1";
+			statusStrip1.Size = new Size(1099, 22);
+			statusStrip1.TabIndex = 4;
+			statusStrip1.Text = "statusStrip1";
+			// 
+			// toolStripProgressBarStatus
+			// 
+			toolStripProgressBarStatus.Name = "toolStripProgressBarStatus";
+			toolStripProgressBarStatus.Size = new Size(100, 16);
+			// 
 			// MainForm
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			ClientSize = new Size(1099, 759);
+			Controls.Add(statusStrip1);
 			Controls.Add(toolStrip1);
 			Controls.Add(tableLayoutPanel1);
 			IsMdiContainer = true;
@@ -592,6 +610,8 @@
 			((System.ComponentModel.ISupportInitialize)numericUpDownTimeout).EndInit();
 			toolStrip1.ResumeLayout(false);
 			toolStrip1.PerformLayout();
+			statusStrip1.ResumeLayout(false);
+			statusStrip1.PerformLayout();
 			ResumeLayout(false);
 			PerformLayout();
 		}
@@ -637,5 +657,7 @@
 		private Button buttonNicRefresh;
 		private ToolStripButton toolStripButtonInfo;
 		private ToolStripSeparator toolStripSeparator1;
+		private StatusStrip statusStrip1;
+		private ToolStripProgressBar toolStripProgressBarStatus;
 	}
 }
