@@ -16,41 +16,41 @@ using System.Windows.Forms;
 namespace ModbusMultiTester
 {
 	/// <summary>
-	/// ���C����ʃN���X�B
-	/// Modbus TCP��Master/Slave�@�\�̊Ǘ��A�ʐM�ݒ�AMDI�q�E�B���h�E�̓������s���܂��B
+	/// メインフォームクラス。
+	/// Modbus TCPのMaster/Slave機能の管理、通信設定、MDI子ウィンドウの登録を行います。
 	/// </summary>
 	public partial class MainForm : Form
 	{
-		// --- Master�p�����o ---
+		// --- Master用メンバー ---
 		private TcpClient? _masterClient;
 		private IModbusMaster? _modbusMaster;
 		private System.Windows.Forms.Timer _pollTimer;
 
-		// --- Slave�p�����o ---
+		// --- Slave用メンバー ---
 		private TcpListener? _slaveListener;
 		private IModbusSlaveNetwork? _slaveNetwork;
 		private IModbusSlave? _mySlave;
 
-		// --- UI���C�A�E�g�p ---
+		// --- UIレイアウト用 ---
 		private MdiClient? _mdiClient;
 
 		/// <summary>
-		/// �R���X�g���N�^
+		/// コンストラクタ
 		/// </summary>
 		public MainForm()
 		{
 			InitializeComponent();
 
-			// ���K�[�@�\�̊J�n
+			// ロガー機能の開始
 			AppLogger.Start();
 			AppLogger.Info("Application Started.");
 
-			// �e�평��������
+			// ネットワークの初期化
 			InitializeNetworking();
 			SetupTimer();
-			PanelChange(); // UI�̏����\����Ԃ�ݒ�
+			PanelChange(); // UIの初期表示状態を設定
 
-			// MDI�R���e�i�̔w�i�F�ݒ�
+			// MDIコンテナの背景色設定
 			foreach (Control ctrl in this.Controls)
 			{
 				if (ctrl is MdiClient mdiClient)
@@ -62,8 +62,8 @@ namespace ModbusMultiTester
 		}
 
 		/// <summary>
-		/// �t�H�[�����[�h���̏����B
-		/// MdiClient�̎擾�ƃ��C�A�E�g�����A�����q�E�B���h�E�̕\�����s���܂��B
+		/// フォームロード時の処理。
+		/// MdiClientの取得とレイアウト調整、初期子ウィンドウの表示を行います。
 		/// </summary>
 		private void MainForm_Load(object sender, EventArgs e)
 		{
@@ -82,8 +82,8 @@ namespace ModbusMultiTester
 		}
 
 		/// <summary>
-		/// ���C�A�E�g�ύX�C�x���g�̃I�[�o�[���C�h�B
-		/// MDI�̈�̈ʒu�ƃT�C�Y�������I�ɐ��䂵�܂��B
+		/// レイアウト変更イベントのオーバーライド。
+		/// MDI領域の位置とサイズを動的に調整します。
 		/// </summary>
 		protected override void OnLayout(LayoutEventArgs levent)
 		{
@@ -107,7 +107,7 @@ namespace ModbusMultiTester
 		}
 
 		/// <summary>
-		/// �t�H�[�����T�C�Y���̏���
+		/// フォームリサイズ時の処理
 		/// </summary>
 		private void MainForm_Resize(object sender, EventArgs e)
 		{
@@ -124,14 +124,14 @@ namespace ModbusMultiTester
 		}
 
 		/// <summary>
-		/// NIC�ꗗ�̏�����
+		/// NIC一覧の初期化
 		/// </summary>
 		private void InitializeNetworking()
 		{
 			comboBoxSrcIP.Items.Clear();
 			comboBoxSrcIP.Items.Add(new NicOption
 			{
-				DisplayName = "�w��Ȃ�(OS�W��)",
+				DisplayName = "指定なし(OS選択)",
 				Ip = IPAddress.Any
 			});
 
@@ -177,7 +177,7 @@ namespace ModbusMultiTester
 			_pollTimer.Tick += PollTimer_Tick;
 		}
 
-		// --- UI�C�x���g�n���h�� ---
+		// --- UIイベントハンドラー ---
 
 		private void toolStripButtonAddPanel_Click(object sender, EventArgs e)
 		{
@@ -189,13 +189,13 @@ namespace ModbusMultiTester
 			var child = new MonitorForm(this.MdiChildren.Length + 1);
 			child.MdiParent = this;
 
-			// �f�[�^�̕ҏW(��������)�C�x���g
+			// データの編集(書き込み)イベント
 			child.DataEdited += (addr, val) =>
 			{
-				// --- SLAVE MODE (����) ---
+				// --- SLAVE MODE (受信) ---
 				if (radioButtonSlave.Checked && _mySlave != null)
 				{
-					/* ... ������Slave���� ... */
+					/* ... 省略：Slave側処理 ... */
 					try
 					{
 						int typeIdx = child.RegisterTypeIndex;
@@ -248,7 +248,7 @@ namespace ModbusMultiTester
 		private void mode_CheckedChanged(object sender, EventArgs e)
 		{
 			PanelChange();
-			// ���[�h�ؑ֎��Ɉ��S�̂��ߒʐM��ؒf����
+			// モード切替時に万全のため通信を切断する
 			DisconnectMaster();
 			StopSlave();
 		}
@@ -274,60 +274,60 @@ namespace ModbusMultiTester
 		// ====================================================================
 
 		/// <summary>
-		/// Master���[�h�̓��͒l�����؂��܂��B
-		/// MonitorForm�̐ݒ��Ԃ��`�F�b�N���܂��B
+		/// Masterモードの入力値を検証します。
+		/// MonitorFormの設定状態もチェックします。
 		/// </summary>
 		private bool ValidateMasterSettings()
 		{
-			// 1.��{�ݒ�`�F�b�N
-			// IpAddressInput�R���g���[���͏�ɐ�����IP�`��(x.x.x.x)��Ԃ����߁A
-			// TryParse�ł̌����ȃ`�F�b�N�͂قڕs�v�ł����A�O�̂��� "0.0.0.0" ��e���Ȃǂ͂����ōs���܂��B
+			// 1.基本設定チェック
+			// IpAddressInputコントロールは常に正しいIP形式(x.x.x.x)を返すため、
+			// TryParseでの厳密なチェックはほぼ不要ですが、念のため "0.0.0.0" 等は除外します。
 
-			// IPAddress�^�Ƃ��Ď擾�ł��邩�m�F
+			// IPAddress型として取得できるか確認
 			if (ipAddressInputDest.GetIpAddress().Equals(IPAddress.Any) && ipAddressInputDest.Text != "0.0.0.0")
 			{
-				// ��{�I�ɂ����ɂ͗��Ȃ�
-				MessageBox.Show("�ڑ���IP�A�h���X�������ł��B", "���̓G���[", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-				return false;
+				// 基本的にここには来ない
+				// 基本的にここには来ない
+				MessageBox.Show("接続先IPアドレスが不正です。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			}
 			if (numericUpDownPort.Value < 1 || numericUpDownPort.Value > 65535)
 			{
-				MessageBox.Show("�|�[�g�ԍ��������ł��B", "���̓G���[", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				MessageBox.Show("ポート番号が不正です。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return false;
 			}
 			if (numericUpDownInterval.Value < 10)
 			{
-				MessageBox.Show("�ʐM�C���^�[�o�����Z�����܂��B", "���̓G���[", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				MessageBox.Show("通信インターバルが短すぎます。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return false;
 			}
 
-			// 2. ���j�^�ݒ�`�F�b�N (������ǉ�)
+			// 2. モニタ設定チェック (必須：追加)
 			var monitors = this.MdiChildren.OfType<MonitorForm>().ToList();
 			if (monitors.Count == 0)
 			{
-				MessageBox.Show("���j�^��ʁi�p�l���j��1������܂���B\n�u�{�p�l���ǉ��v�{�^���Œǉ����Ă��������B", "�ݒ�G���[", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				MessageBox.Show("モニタ画面(パネル)が1つもありません。\n「＋パネル追加」ボタンで追加してください。", "設定エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return false;
 			}
 
-			// �u�ݒ蔽�f�v�ς݂̃��j�^�����Ȃ��Ƃ�1���邩�H
+			// 「設定反映」済みのモニタが少なくとも1つあるか？
 			bool anyApplied = monitors.Any(m => m.IsSettingsApplied);
 			if (!anyApplied)
 			{
-				MessageBox.Show("�ݒ肪���f����Ă��郂�j�^������܂���B\n�e���j�^�́u�ݒ蔽�f�v�{�^���������āA�Ď��A�h���X���m�肳���Ă��������B", "�ݒ�G���[", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				MessageBox.Show("設定が反映されているモニタがありません。\n各モニタの「設定反映」ボタンを押して、読取アドレスを確定させてください。", "設定エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return false;
 			}
 
 			return true;
 		}
 		/// <summary>
-		/// Slave���[�h�̓��͒l�����؂��܂��B
+		/// Slaveモードの入力値を検証します。
 		/// </summary>
 		private bool ValidateSlaveSettings()
 		{
-			// �|�[�g�ԍ��`�F�b�N (numericUpDown1 = Listen Port)
+			// ポート番号チェック (numericUpDown1 = Listen Port)
 			if (numericUpDown1.Value < 1 || numericUpDown1.Value > 65535)
 			{
-				MessageBox.Show("�Ҏ�|�[�g�ԍ��� 1 �` 65535 �͈̔͂Ŏw�肵�Ă��������B", "���̓G���[", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				MessageBox.Show("待受ポート番号は 1 ～ 65535 の範囲で指定してください。", "入力エラー", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				numericUpDown1.Focus();
 				return false;
 			}
@@ -336,12 +336,12 @@ namespace ModbusMultiTester
 		}
 
 		/// <summary>
-		/// Master���[�h�ڑ�����UI���b�N/�����𐧌䂵�܂��B
+		/// Masterモード接続中のUIロック/解除を制御します。
 		/// </summary>
-		/// <param name="isConnecting">�ڑ����Ȃ�true, �ؒf���Ȃ�false</param>
+		/// <param name="isConnecting">接続中ならtrue, 切断中ならfalse</param>
 		private void SetMasterUiState(bool isConnecting)
 		{
-			// �ݒ荀�ڂ̃��b�N
+			// 設定項目のロック
 			ipAddressInputDest.Enabled = !isConnecting;
 			numericUpDownPort.Enabled = !isConnecting;
 			numericUpDownSlaveID.Enabled = !isConnecting;
@@ -350,45 +350,45 @@ namespace ModbusMultiTester
 			checkBoxOneShot.Enabled = !isConnecting;
 			comboBoxSrcIP.Enabled = !isConnecting;
 
-			// ���[�h�ؑւ̃��b�N
+			// モード切替のロック
 			groupBoxMode.Enabled = !isConnecting;
 
-			// �{�^���\���̐؂�ւ�
+			// ボタン表示の切り替え
 			if (isConnecting)
 			{
-				buttonConnect.Text = "�ؒf";
+				buttonConnect.Text = "切断";
 				buttonConnect.BackColor = Color.LightGreen;
 			}
 			else
 			{
-				buttonConnect.Text = "�ڑ�";
+				buttonConnect.Text = "接続";
 				buttonConnect.BackColor = SystemColors.Control;
 			}
 		}
 
 		/// <summary>
-		/// Slave���[�h�Ҏ󒆂�UI���b�N/�����𐧌䂵�܂��B
+		/// Slaveモード待受中のUIロック/解除を制御します。
 		/// </summary>
-		/// <param name="isListening">�Ҏ󒆂Ȃ�true, ��~���Ȃ�false</param>
+		/// <param name="isListening">待受中ならtrue, 停止中ならfalse</param>
 		private void SetSlaveUiState(bool isListening)
 		{
-			// �ݒ荀�ڂ̃��b�N
+			// 設定項目のロック
 			numericUpDown1.Enabled = !isListening; // Port
 			numericUpDown2.Enabled = !isListening; // UnitID
 			comboBoxSrcIP.Enabled = !isListening;
 
-			// ���[�h�ؑւ̃��b�N
+			// モード切替のロック
 			groupBoxMode.Enabled = !isListening;
 
-			// �{�^���\���̐؂�ւ�
+			// ボタン表示の切り替え
 			if (isListening)
 			{
-				buttonListen.Text = "��~";
+				buttonListen.Text = "停止";
 				buttonListen.BackColor = Color.LightGreen;
 			}
 			else
 			{
-				buttonListen.Text = "�Ҏ�\r\n�J�n";
+				buttonListen.Text = "待受\r\n開始";
 				buttonListen.BackColor = SystemColors.Control;
 			}
 		}
@@ -406,15 +406,15 @@ namespace ModbusMultiTester
 				return;
 			}
 
-			// �o���f�[�V�������s
+			// バリデーションを実行
 			if (!ValidateMasterSettings()) return;
 
 			try
 			{
-				// UI���b�N
+				// UIロック
 				buttonConnect.Enabled = false;
 
-				// IP/Port�ݒ�
+				// IP/Port設定
 				IPAddress sourceIp = IPAddress.Any;
 				if (comboBoxSrcIP.SelectedItem is NicOption nic) sourceIp = nic.Ip;
 				var localEndPoint = new IPEndPoint(sourceIp, 0);
@@ -427,7 +427,7 @@ namespace ModbusMultiTester
 				AppLogger.Info($"Connecting to {targetIp}:{targetPort}...");
 				await _masterClient.ConnectAsync(targetIp, targetPort);
 
-				// Modbus�\�z
+				// Modbus構築
 				var adapter = new LoggingAdapter(_masterClient);
 				var factory = new ModbusFactory();
 				var transport = factory.CreateIpTransport(adapter);
@@ -458,7 +458,7 @@ namespace ModbusMultiTester
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show($"�ڑ��G���[: {ex.Message}", "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show($"接続エラー: {ex.Message}", "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				AppLogger.Error($"Connect Fail: {ex.Message}");
 				DisconnectMaster();
 			}
@@ -470,10 +470,10 @@ namespace ModbusMultiTester
 
 		private void DisconnectMaster()
 		{
-			// �^�C�}�[��~
+			// �^�C�}�[停止
 			_pollTimer.Stop();
 
-			// ���\�[�X���
+			// リソース解放
 			_modbusMaster?.Dispose();
 			_masterClient?.Close();
 			_modbusMaster = null;
@@ -481,7 +481,7 @@ namespace ModbusMultiTester
 
 			AppLogger.Info("Disconnected.");
 
-			// UI���b�N����
+			// UIロック解除
 			SetMasterUiState(false);
 		}
 
@@ -558,13 +558,13 @@ namespace ModbusMultiTester
 
 					foreach (var monitor in monitors)
 					{
-						// �ݒ薢���f�̃��j�^�̓X�L�b�v
+						// 設定未反映のモニタはスキップ
 						if (!monitor.IsSettingsApplied) continue;
 
 						// マスターモードでも編雁E��能にする�E�レジスタタイプに応じて�E�E
 						monitor.EnableGridEditing(true, isMasterMode: true);
 
-						// �m��ς݂̃v���p�e�B���g�p
+						// 確定済みのプロパティを使用
 						ushort startAddr = monitor.CurrentStartAddress;
 						ushort count = monitor.CurrentCount;
 						int typeIdx = monitor.RegisterTypeIndex;
@@ -609,7 +609,7 @@ namespace ModbusMultiTester
 					var monitors = this.MdiChildren.OfType<MonitorForm>().ToList();
 					foreach (var monitor in monitors)
 					{
-						// �ݒ薢���f�Ȃ牽�����Ȃ��i�O���b�h������Ȃ��j
+						// 設定未反映なら何もしない(グリッド更新しない)
 						if (!monitor.IsSettingsApplied) continue;
 
 						monitor.EnableGridEditing(true);
@@ -621,7 +621,7 @@ namespace ModbusMultiTester
 						try
 						{
 							ushort[] data = new ushort[count];
-							// DataStore����ǂݏo��
+							// DataStoreから読み出し
 							switch (typeIdx)
 							{
 								case 0:
@@ -655,19 +655,19 @@ namespace ModbusMultiTester
 
 		private void buttonListen_Click(object sender, EventArgs e)
 		{
-			// ����Listen���̏ꍇ�͒�~������
+			// 既にListen中の場合は停止する
 			if (_slaveListener != null)
 			{
 				StopSlave();
 				return;
 			}
 
-			// �o���f�[�V�������s
+			// バリデーションを実行
 			if (!ValidateSlaveSettings()) return;
 
 			try
 			{
-				// 1. IP & Port �ݒ�
+				// 1. IP & Port 設定
 				IPAddress listenIp = IPAddress.Any;
 				if (comboBoxSrcIP.SelectedItem is NicOption nic)
 				{
@@ -675,11 +675,11 @@ namespace ModbusMultiTester
 				}
 				int port = (int)numericUpDown1.Value; // Port
 
-				// 2. Listener�N��
+				// 2. Listener作成
 				_slaveListener = new TcpListener(listenIp, port);
 				_slaveListener.Start();
 
-				// 3. NModbus Slave�@�\�\�z
+				// 3. NModbus Slave機能構築
 				var factory = new ModbusFactory();
 				_slaveNetwork = factory.CreateSlaveNetwork(_slaveListener);
 
@@ -687,21 +687,21 @@ namespace ModbusMultiTester
 				_mySlave = factory.CreateSlave(unitId);
 				_slaveNetwork.AddSlave(_mySlave);
 
-				// 4. Listen�J�n
+				// 4. Listen開始
 				_slaveNetwork.ListenAsync();
 
 				AppLogger.Info($"Slave Started on {listenIp}:{port}, UnitID={unitId}");
 
-				// �Ҏ󐬌���Ԃ�UI�Z�b�g
+				// 待受成功状態のUI設定
 				SetSlaveUiState(true);
 
-				// ��ʓ����p�^�C�}�[�J�n
+				// 画面更新用タイマー開始
 				_pollTimer.Interval = (int)numericUpDownInterval.Value;
 				_pollTimer.Start();
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show($"�Ҏ�J�n�G���[: {ex.Message}", "Listen Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				MessageBox.Show($"待受開始エラー: {ex.Message}", "Listen Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				AppLogger.Error($"Listen Error: {ex.Message}");
 				StopSlave();
 			}
@@ -723,7 +723,7 @@ namespace ModbusMultiTester
 
 			AppLogger.Info("Slave Stopped.");
 
-			// UI���b�N����
+			// UIロック解除
 			SetSlaveUiState(false);
 		}
 
