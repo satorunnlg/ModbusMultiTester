@@ -36,7 +36,15 @@ namespace ModbusMultiTester.Core
         public static void Stop()
         {
             _isRunning = false;
-            // 残りのキューが書き込まれるのを少し待つなどの処理を入れても良い
+            // キューの残りを確実に処理するため、書き込みタスクの完了を待つ
+            try
+            {
+                _writeTask?.Wait(TimeSpan.FromSeconds(5));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"AppLogger.Stop: {ex.Message}");
+            }
         }
 
         // 通常の操作ログ
@@ -72,34 +80,57 @@ namespace ModbusMultiTester.Core
 
         private static async Task ProcessQueue()
         {
-            while (_isRunning || !_logQueue.IsEmpty)
+            StreamWriter? currentWriter = null;
+            string? currentDate = null;
+
+            try
             {
-                if (_logQueue.TryDequeue(out string? logLine))
+                while (_isRunning || !_logQueue.IsEmpty)
                 {
-                    try
+                    if (_logQueue.TryDequeue(out string? logLine))
                     {
-                        if (string.IsNullOrEmpty(logLine)) continue;
-
-                        // 日付ごとにファイルを変える (例: modbus_20251213.log)
-                        string fileName = $"modbus_{DateTime.Now:yyyyMMdd}.log";
-                        string filePath = Path.Combine(_logPath, fileName);
-
-                        // 追記モードで書き込み
-                        using (StreamWriter sw = File.AppendText(filePath))
+                        try
                         {
-                            await sw.WriteLineAsync(logLine);
+                            if (string.IsNullOrEmpty(logLine)) continue;
+
+                            // 日付ごとにファイルを変える (例: modbus_20251213.log)
+                            string today = DateTime.Now.ToString("yyyyMMdd");
+
+                            // 日付が変わった場合は新しいファイルに切り替え
+                            if (currentDate != today)
+                            {
+                                currentWriter?.Dispose();
+
+                                string fileName = $"modbus_{today}.log";
+                                string filePath = Path.Combine(_logPath, fileName);
+
+                                currentWriter = new StreamWriter(filePath, append: true, Encoding.UTF8)
+                                {
+                                    AutoFlush = true
+                                };
+                                currentDate = today;
+                            }
+
+                            // StreamWriterに書き込み
+                            await currentWriter!.WriteLineAsync(logLine);
+                        }
+                        catch (Exception ex)
+                        {
+                            // ログ書き込み失敗時はアプリを止めずにデバッグ出力
+                            System.Diagnostics.Debug.WriteLine($"AppLogger.ProcessQueue: {ex.Message}");
                         }
                     }
-                    catch
+                    else
                     {
-                        // ログ書き込み失敗時はアプリを止めずに無視する
+                        // キューが空なら少し待機してCPU負荷を下げる
+                        await Task.Delay(50);
                     }
                 }
-                else
-                {
-                    // キューが空なら少し待機してCPU負荷を下げる
-                    await Task.Delay(50);
-                }
+            }
+            finally
+            {
+                // タスク終了時にStreamWriterを確実にクローズ
+                currentWriter?.Dispose();
             }
         }
     }

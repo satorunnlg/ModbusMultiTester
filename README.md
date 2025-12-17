@@ -24,11 +24,11 @@
 ## 動作環境
 
   * **OS:** Windows 10 / 11
-  * **フレームワーク:** .NET 8.0 (Windows Forms)
+  * **フレームワーク:** .NET 9.0 (Windows Forms)
 
 ## 開発環境・依存ライブラリ
 
-  * Visual Studio 2022 (または .NET 8.0 対応のIDE)
+  * Visual Studio 2022 (または .NET 9.0 対応のIDE)
   * **NModbus** (v3.x) - Modbusプロトコルスタック
 
 ## インストールとビルド

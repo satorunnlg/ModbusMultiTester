@@ -158,7 +158,9 @@ namespace ModbusMultiTester
 			}
 			catch (Exception ex)
 			{
-				AppLogger.Error($"NIC Scan Error: {ex.Message}");
+				// 例外内容を詳細にログ記録
+				AppLogger.Error($"NIC Scan Error: {ex.GetType().Name} - {ex.Message}");
+				System.Diagnostics.Debug.WriteLine($"NIC Scan Exception Details:\n{ex}");
 			}
 
 			comboBoxSrcIP.Items.Add(new NicOption
@@ -247,7 +249,10 @@ namespace ModbusMultiTester
 							case 3: _mySlave.DataStore.HoldingRegisters.WritePoints(addr, new ushort[] { val }); break;
 						}
 					}
-					catch (Exception ex) { AppLogger.Error($"Slave Write Error: {ex.Message}"); }
+					catch (Exception ex)
+				{
+					AppLogger.Error($"Slave Write Error: {ex.GetType().Name} - {ex.Message}");
+				}
 				}
 				// --- MASTER MODE ---
 				else if (radioButtonMaster.Checked && _modbusMaster != null)
@@ -276,7 +281,7 @@ namespace ModbusMultiTester
 					}
 					catch (Exception ex)
 					{
-						AppLogger.Error($"Master Write Error: {ex.Message}");
+						AppLogger.Error($"Master Write Error: {ex.GetType().Name} - {ex.Message}");
 						MessageBox.Show($"書き込みエラー: {ex.Message}", "エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					}
 				}
@@ -501,7 +506,7 @@ namespace ModbusMultiTester
 			catch (Exception ex)
 			{
 				MessageBox.Show($"接続エラー: {ex.Message}", "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				AppLogger.Error($"Connect Fail: {ex.Message}");
+				AppLogger.Error($"Connect Fail: {ex.GetType().Name} - {ex.Message}");
 				DisconnectMaster();
 			}
 			finally
@@ -744,7 +749,7 @@ namespace ModbusMultiTester
 			catch (Exception ex)
 			{
 				MessageBox.Show($"待受開始エラー: {ex.Message}", "Listen Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				AppLogger.Error($"Listen Error: {ex.Message}");
+				AppLogger.Error($"Listen Error: {ex.GetType().Name} - {ex.Message}");
 				StopSlave();
 			}
 		}
