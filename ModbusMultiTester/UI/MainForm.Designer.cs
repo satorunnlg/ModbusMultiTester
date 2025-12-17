@@ -57,13 +57,12 @@
 			ipAddressInputDest = new ModbusMultiTester.UI.IpAddressInput();
 			label7 = new Label();
 			numericUpDownTimeout = new NumericUpDown();
-			buttonOneShot = new Button();
-			buttonCycle = new Button();
 			toolStrip1 = new ToolStrip();
 			toolStripButtonAddPanel = new ToolStripButton();
 			toolStripLabel1 = new ToolStripLabel();
 			toolStripButton2 = new ToolStripButton();
 			toolStripButton3 = new ToolStripButton();
+			checkBoxOneShot = new CheckBox();
 			tableLayoutPanel1.SuspendLayout();
 			groupBoxMode.SuspendLayout();
 			tableLayoutPanel4.SuspendLayout();
@@ -289,14 +288,14 @@
 			// 
 			// tableLayoutPanel2
 			// 
-			tableLayoutPanel2.ColumnCount = 7;
+			tableLayoutPanel2.ColumnCount = 5;
 			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F));
 			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
 			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F));
 			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
 			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90F));
-			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90F));
-			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90F));
+			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
 			tableLayoutPanel2.Controls.Add(label1, 0, 0);
 			tableLayoutPanel2.Controls.Add(label2, 2, 0);
 			tableLayoutPanel2.Controls.Add(label3, 2, 1);
@@ -308,8 +307,7 @@
 			tableLayoutPanel2.Controls.Add(ipAddressInputDest, 1, 0);
 			tableLayoutPanel2.Controls.Add(label7, 0, 2);
 			tableLayoutPanel2.Controls.Add(numericUpDownTimeout, 1, 2);
-			tableLayoutPanel2.Controls.Add(buttonOneShot, 5, 0);
-			tableLayoutPanel2.Controls.Add(buttonCycle, 6, 0);
+			tableLayoutPanel2.Controls.Add(checkBoxOneShot, 3, 2);
 			tableLayoutPanel2.Dock = DockStyle.Fill;
 			tableLayoutPanel2.Location = new Point(0, 0);
 			tableLayoutPanel2.Margin = new Padding(0);
@@ -336,7 +334,7 @@
 			// 
 			label2.AutoSize = true;
 			label2.Dock = DockStyle.Fill;
-			label2.Location = new Point(181, 0);
+			label2.Location = new Point(271, 0);
 			label2.Name = "label2";
 			label2.Size = new Size(94, 30);
 			label2.TabIndex = 1;
@@ -347,7 +345,7 @@
 			// 
 			label3.AutoSize = true;
 			label3.Dock = DockStyle.Fill;
-			label3.Location = new Point(181, 30);
+			label3.Location = new Point(271, 30);
 			label3.Name = "label3";
 			label3.Size = new Size(94, 30);
 			label3.TabIndex = 1;
@@ -369,10 +367,10 @@
 			// 
 			numericUpDownPort.BorderStyle = BorderStyle.FixedSingle;
 			numericUpDownPort.Dock = DockStyle.Fill;
-			numericUpDownPort.Location = new Point(281, 3);
+			numericUpDownPort.Location = new Point(371, 3);
 			numericUpDownPort.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
 			numericUpDownPort.Name = "numericUpDownPort";
-			numericUpDownPort.Size = new Size(72, 23);
+			numericUpDownPort.Size = new Size(162, 23);
 			numericUpDownPort.TabIndex = 3;
 			numericUpDownPort.TextAlign = HorizontalAlignment.Right;
 			numericUpDownPort.Value = new decimal(new int[] { 502, 0, 0, 0 });
@@ -384,7 +382,7 @@
 			numericUpDownSlaveID.Location = new Point(103, 33);
 			numericUpDownSlaveID.Maximum = new decimal(new int[] { 255, 0, 0, 0 });
 			numericUpDownSlaveID.Name = "numericUpDownSlaveID";
-			numericUpDownSlaveID.Size = new Size(72, 23);
+			numericUpDownSlaveID.Size = new Size(162, 23);
 			numericUpDownSlaveID.TabIndex = 4;
 			numericUpDownSlaveID.TextAlign = HorizontalAlignment.Right;
 			numericUpDownSlaveID.Value = new decimal(new int[] { 1, 0, 0, 0 });
@@ -393,10 +391,10 @@
 			// 
 			numericUpDownInterval.BorderStyle = BorderStyle.FixedSingle;
 			numericUpDownInterval.Dock = DockStyle.Fill;
-			numericUpDownInterval.Location = new Point(281, 33);
+			numericUpDownInterval.Location = new Point(371, 33);
 			numericUpDownInterval.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
 			numericUpDownInterval.Name = "numericUpDownInterval";
-			numericUpDownInterval.Size = new Size(72, 23);
+			numericUpDownInterval.Size = new Size(162, 23);
 			numericUpDownInterval.TabIndex = 5;
 			numericUpDownInterval.TextAlign = HorizontalAlignment.Right;
 			numericUpDownInterval.Value = new decimal(new int[] { 100, 0, 0, 0 });
@@ -404,10 +402,10 @@
 			// buttonConnect
 			// 
 			buttonConnect.Dock = DockStyle.Fill;
-			buttonConnect.Location = new Point(359, 3);
+			buttonConnect.Location = new Point(539, 3);
 			buttonConnect.Name = "buttonConnect";
 			tableLayoutPanel2.SetRowSpan(buttonConnect, 3);
-			buttonConnect.Size = new Size(84, 84);
+			buttonConnect.Size = new Size(85, 84);
 			buttonConnect.TabIndex = 6;
 			buttonConnect.Text = "接続";
 			buttonConnect.UseVisualStyleBackColor = true;
@@ -421,7 +419,7 @@
 			ipAddressInputDest.Location = new Point(103, 3);
 			ipAddressInputDest.Name = "ipAddressInputDest";
 			ipAddressInputDest.Padding = new Padding(1);
-			ipAddressInputDest.Size = new Size(72, 20);
+			ipAddressInputDest.Size = new Size(162, 20);
 			ipAddressInputDest.TabIndex = 7;
 			ipAddressInputDest.Text = "127.0.0.1";
 			// 
@@ -443,34 +441,10 @@
 			numericUpDownTimeout.Location = new Point(103, 63);
 			numericUpDownTimeout.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
 			numericUpDownTimeout.Name = "numericUpDownTimeout";
-			numericUpDownTimeout.Size = new Size(72, 23);
+			numericUpDownTimeout.Size = new Size(162, 23);
 			numericUpDownTimeout.TabIndex = 4;
 			numericUpDownTimeout.TextAlign = HorizontalAlignment.Right;
 			numericUpDownTimeout.Value = new decimal(new int[] { 5000, 0, 0, 0 });
-			// 
-			// buttonOneShot
-			// 
-			buttonOneShot.Dock = DockStyle.Fill;
-			buttonOneShot.Location = new Point(449, 3);
-			buttonOneShot.Name = "buttonOneShot";
-			tableLayoutPanel2.SetRowSpan(buttonOneShot, 3);
-			buttonOneShot.Size = new Size(84, 84);
-			buttonOneShot.TabIndex = 6;
-			buttonOneShot.Text = "ワンショット\r\n通信";
-			buttonOneShot.UseVisualStyleBackColor = true;
-			buttonOneShot.Click += buttonConnect_Click;
-			// 
-			// buttonCycle
-			// 
-			buttonCycle.Dock = DockStyle.Fill;
-			buttonCycle.Location = new Point(539, 3);
-			buttonCycle.Name = "buttonCycle";
-			tableLayoutPanel2.SetRowSpan(buttonCycle, 3);
-			buttonCycle.Size = new Size(85, 84);
-			buttonCycle.TabIndex = 6;
-			buttonCycle.Text = "連続\r\n通信";
-			buttonCycle.UseVisualStyleBackColor = true;
-			buttonCycle.Click += buttonConnect_Click;
 			// 
 			// toolStrip1
 			// 
@@ -521,6 +495,17 @@
 			toolStripButton3.Size = new Size(56, 22);
 			toolStripButton3.Text = "縦に整列";
 			toolStripButton3.Click += toolStripButton3_Click;
+			// 
+			// checkBoxOneShot
+			// 
+			checkBoxOneShot.AutoSize = true;
+			checkBoxOneShot.Dock = DockStyle.Fill;
+			checkBoxOneShot.Location = new Point(371, 63);
+			checkBoxOneShot.Name = "checkBoxOneShot";
+			checkBoxOneShot.Size = new Size(162, 24);
+			checkBoxOneShot.TabIndex = 8;
+			checkBoxOneShot.Text = "ワンショットモード";
+			checkBoxOneShot.UseVisualStyleBackColor = true;
 			// 
 			// MainForm
 			// 
@@ -594,7 +579,6 @@
 		private Label label7;
 		private NumericUpDown numericUpDownTimeout;
 		private Button button1;
-		private Button buttonCycle;
-		private Button buttonOneShot;
+		private CheckBox checkBoxOneShot;
 	}
 }
