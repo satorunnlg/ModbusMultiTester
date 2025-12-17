@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Product>ModbusMultiTester</Product>
     <Version>1.0.0.0</Version>
     <FileVersion>1.0.0.0</FileVersion>
