@@ -1,7 +1,7 @@
 # Modbus TCP Multi-Tester �J���݌v��
 
-**�o�[�W����:** 0.0.1
-**�v���b�g�t�H�[��:** .NET 8.0 (Windows Forms)
+**�o�[�W����:** 1.0.0
+**�v���b�g�t�H�[��:** .NET 9.0 (Windows Forms)
 **�J������:** C\#
 **�O�����C�u����:** NModbus (v3.x�n)
 
@@ -77,6 +77,49 @@ ModbusMultiTester.sln        ... �\�����[�V�����t�@�C��
   * **���e:** ����M���� Modbus �t���[���̐��f�[�^ (Hex Dump) �����n��ŋL�^�B
   * **�ۑ�:** `logs/` �t�H���_�֓����t�@�C�� (`modbus_yyyyMMdd.log`) �Ƃ��ĕۑ��B
 
+### 3.6 タイムアウト設定
+
+  * **設定項目:** Master パネルに `numericUpDownTimeout` を追加
+  * **範囲:** 0-65535 ms
+  * **デフォルト値:** 5000ms
+  * **適用:** Modbus Master の ReadTimeout / WriteTimeout に設定
+
+### 3.7 ワンショットモード
+
+  * **設定項目:** Master パネルに `checkBoxOneShot` を追加
+  * **デフォルト:** チェック済み（有効）
+  * **動作:** 接続後に全モニタに対して1回だけポーリングを実行し、自動切断する
+  * **用途:** 定期監視ではなく、一度だけデータを取得したい場合に使用
+
+### 3.8 NIC更新機能
+
+  * **設定項目:** ヘッダー部に `buttonNicRefresh` を追加
+  * **機能:** ネットワークインターフェース一覧を再取得し、ComboBoxを更新
+  * **動作:** 
+      * 現在選択中のIPアドレスを保持
+      * NIC一覧を再スキャン
+      * 同じIPアドレスがあれば再選択、なければ先頭を選択
+
+### 3.9 UI フィードバック機能
+
+  * **プログレスバー:** StatusStrip に `toolStripProgressBarStatus` を追加
+  * **表示タイミング:** 
+      * Master 接続処理中（Marquee スタイル）
+      * Slave 待受開始処理中（Marquee スタイル）
+  * **非表示:** 処理完了時またはエラー時に自動的に非表示
+
+### 3.10 ソフト情報ダイアログ
+
+  * **実装:** `InfoForm.cs` を新規追加
+  * **表示内容:**
+      * 製品名（ModbusMultiTester）
+      * バージョン情報（1.0.0.0）
+      * 著作権表示（Copyright © 2025 satorunnlg）
+      * 会社名（satorunnlg）
+      * MIT ライセンス全文
+      * サードパーティライブラリ情報（NModbus 3.0.81）
+  * **起動:** ツールバーの情報ボタンから表示
+
 -----
 
 ## 4\. �N���X�ڍא݌v
@@ -123,17 +166,20 @@ ModbusMultiTester.sln        ... �\�����[�V�����t�@�C��
 
 | �G���A | �R���g���[�� | ���� |
 | :--- | :--- | :--- |
-| **Header (�㕔)** | `RadioButton` | Master / Slave ���[�h�ؑ� |
-| | `ComboBox` | Source IP (NIC) �I�� |
-| **Settings (�p�l��)** | **[Master Panel]** | Master���[�h���̂ݕ\�� |
-| | `IpAddressInput` | �ڑ���IP�A�h���X (��: 192.168.1.1) |
-| | `NumericUpDown` | Port (Default 502), SlaveID, Interval |
-| | `Button` | �ڑ� / �ؒf |
-| | **[Slave Panel]** | Slave���[�h���̂ݕ\�� |
+| **Header (上部)** | `RadioButton` | Master / Slave モード切替 |
+| | `ComboBox` | Source IP (NIC) 選択 |
+| | `Button` | NIC更新ボタン |
+| **Settings (パネル)** | **[Master Panel]** | Masterモード時のみ表示 |
+| | `IpAddressInput` | 接続先IPアドレス (例: 192.168.1.1) |
+| | `NumericUpDown` | Port (Default 502), SlaveID, Interval, Timeout |
+| | `CheckBox` | ワンショットモード (Default: ON) |
+| | `Button` | 接続 / 切断 |
+| | **[Slave Panel]** | Slaveモード時のみ表示 |
 | | `NumericUpDown` | Listen Port (Default 502), Unit ID |
-| | `Button` | �Ҏ�J�n / ��~ |
-| **Toolbar (����)** | `ToolStrip` | [�{�p�l���ǉ�], [���ɐ���], [�c�ɐ���] |
-| **Client Area** | `MdiClient` | �q�E�B���h�E���\�������̈� (�w�i�F: 240, 240, 240) |
+| | `Button` | 待受開始 / 停止 |
+| **Toolbar (中段)** | `ToolStrip` | [監視パネル追加], [縦に整列], [横に整列], [情報] |
+| **Client Area** | `MdiClient` | 子ウィンドウを表示する領域 (背景色: 240, 240, 240) |
+| **Status Bar (下部)** | `StatusStrip` | プログレスバー（処理中のフィードバック） |
 
 ### 5.2 MonitorForm (�q���)
 
