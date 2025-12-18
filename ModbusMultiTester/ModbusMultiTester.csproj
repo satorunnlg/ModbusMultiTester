@@ -31,7 +31,12 @@ NModbus 3.0.81
 Copyright (c) NModbus Contributors
 Licensed under the MIT License
 https://github.com/NModbus/NModbus</Description>
+    <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\icon.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="NModbus" Version="3.0.81" />
