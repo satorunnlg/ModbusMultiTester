@@ -27,7 +27,6 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(InfoForm));
 			tableLayoutPanel = new TableLayoutPanel();
 			logoPictureBox = new PictureBox();
 			labelProductName = new Label();
@@ -69,13 +68,13 @@
 			// logoPictureBox
 			// 
 			logoPictureBox.Dock = DockStyle.Fill;
-			logoPictureBox.Image = (Image)resources.GetObject("logoPictureBox.Image");
+			logoPictureBox.Image = Properties.Resources.Logo;
 			logoPictureBox.Location = new Point(4, 3);
 			logoPictureBox.Margin = new Padding(4, 3, 4, 3);
 			logoPictureBox.Name = "logoPictureBox";
 			tableLayoutPanel.SetRowSpan(logoPictureBox, 6);
 			logoPictureBox.Size = new Size(152, 301);
-			logoPictureBox.SizeMode = PictureBoxSizeMode.StretchImage;
+			logoPictureBox.SizeMode = PictureBoxSizeMode.Zoom;
 			logoPictureBox.TabIndex = 12;
 			logoPictureBox.TabStop = false;
 			// 
@@ -164,7 +163,7 @@
 			MaximizeBox = false;
 			MinimizeBox = false;
 			Name = "InfoForm";
-			Padding = new Padding(10, 10, 10, 10);
+			Padding = new Padding(10);
 			ShowIcon = false;
 			ShowInTaskbar = false;
 			StartPosition = FormStartPosition.CenterParent;

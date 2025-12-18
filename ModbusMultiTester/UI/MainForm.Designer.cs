@@ -584,6 +584,7 @@
 			Controls.Add(statusStrip1);
 			Controls.Add(toolStrip1);
 			Controls.Add(tableLayoutPanel1);
+			Icon = (Icon)resources.GetObject("$this.Icon");
 			IsMdiContainer = true;
 			Name = "MainForm";
 			Text = "ModbusMultiTester";
