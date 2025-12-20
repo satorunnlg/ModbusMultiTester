@@ -16,41 +16,42 @@ using System.Windows.Forms;
 namespace ModbusMultiTester
 {
 	/// <summary>
-	/// ƒƒCƒ“‰æ–ÊƒNƒ‰ƒXB
-	/// Modbus TCP‚ÌMaster/Slave‹@”\‚ÌŠÇ—A’ÊMİ’èAMDIqƒEƒBƒ“ƒhƒE‚Ì“Š‡‚ğs‚¢‚Ü‚·B
+	/// ãƒ¡ã‚¤ãƒ³ãƒ•ã‚©ãƒ¼ãƒ ã‚¯ãƒ©ã‚¹ã€‚
+	/// Modbus TCPã®Master/Slaveæ©Ÿèƒ½ã®ç®¡ç†ã€é€šä¿¡è¨­å®šã€MDIå­ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®ç™»éŒ²ã‚’è¡Œã„ã¾ã™ã€‚
 	/// </summary>
 	public partial class MainForm : Form
 	{
-		// --- Master—pƒƒ“ƒo ---
+		// --- Masterç”¨ãƒ¡ãƒ³ãƒãƒ¼ ---
 		private TcpClient? _masterClient;
 		private IModbusMaster? _modbusMaster;
 		private System.Windows.Forms.Timer _pollTimer;
+		private bool _isPolling = false; // ã‚¿ã‚¤ãƒãƒ¼å‡¦ç†ã®é‡è¤‡å®Ÿè¡Œã‚’é˜²ããƒ•ãƒ©ã‚°
 
-		// --- Slave—pƒƒ“ƒo ---
+		// --- Slaveç”¨ãƒ¡ãƒ³ãƒãƒ¼ ---
 		private TcpListener? _slaveListener;
 		private IModbusSlaveNetwork? _slaveNetwork;
 		private IModbusSlave? _mySlave;
 
-		// --- UIƒŒƒCƒAƒEƒg—p ---
+		// --- UIãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆç”¨ ---
 		private MdiClient? _mdiClient;
 
 		/// <summary>
-		/// ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+		/// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 		/// </summary>
 		public MainForm()
 		{
 			InitializeComponent();
 
-			// ƒƒK[‹@”\‚ÌŠJn
+			// ãƒ­ã‚¬ãƒ¼æ©Ÿèƒ½ã®é–‹å§‹
 			AppLogger.Start();
 			AppLogger.Info("Application Started.");
 
-			// Šeí‰Šú‰»ˆ—
+			// ãƒãƒƒãƒˆãƒ¯ãƒ¼ã‚¯ã®åˆæœŸåŒ–
 			InitializeNetworking();
 			SetupTimer();
-			PanelChange(); // UI‚Ì‰Šú•\¦ó‘Ô‚ğİ’è
+			PanelChange(); // UIã®åˆæœŸè¡¨ç¤ºçŠ¶æ…‹ã‚’è¨­å®š
 
-			// MDIƒRƒ“ƒeƒi‚Ì”wŒiFİ’è
+			// MDIã‚³ãƒ³ãƒ†ãƒŠã®èƒŒæ™¯è‰²è¨­å®š
 			foreach (Control ctrl in this.Controls)
 			{
 				if (ctrl is MdiClient mdiClient)
@@ -62,8 +63,8 @@ namespace ModbusMultiTester
 		}
 
 		/// <summary>
-		/// ƒtƒH[ƒ€ƒ[ƒh‚Ìˆ—B
-		/// MdiClient‚Ìæ“¾‚ÆƒŒƒCƒAƒEƒg’²®A‰ŠúqƒEƒBƒ“ƒhƒE‚Ì•\¦‚ğs‚¢‚Ü‚·B
+		/// ãƒ•ã‚©ãƒ¼ãƒ ãƒ­ãƒ¼ãƒ‰æ™‚ã®å‡¦ç†ã€‚
+		/// MdiClientã®å–å¾—ã¨ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆèª¿æ•´ã€åˆæœŸå­ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®è¡¨ç¤ºã‚’è¡Œã„ã¾ã™ã€‚
 		/// </summary>
 		private void MainForm_Load(object sender, EventArgs e)
 		{
@@ -82,8 +83,8 @@ namespace ModbusMultiTester
 		}
 
 		/// <summary>
-		/// ƒŒƒCƒAƒEƒg•ÏXƒCƒxƒ“ƒg‚ÌƒI[ƒo[ƒ‰ƒCƒhB
-		/// MDI—Ìˆæ‚ÌˆÊ’u‚ÆƒTƒCƒY‚ğ‹­§“I‚É§Œä‚µ‚Ü‚·B
+		/// ãƒ¬ã‚¤ã‚¢ã‚¦ãƒˆå¤‰æ›´ã‚¤ãƒ™ãƒ³ãƒˆã®ã‚ªãƒ¼ãƒãƒ¼ãƒ©ã‚¤ãƒ‰ã€‚
+		/// MDIé ˜åŸŸã®ä½ç½®ã¨ã‚µã‚¤ã‚ºã‚’å‹•çš„ã«èª¿æ•´ã—ã¾ã™ã€‚
 		/// </summary>
 		protected override void OnLayout(LayoutEventArgs levent)
 		{
@@ -107,7 +108,7 @@ namespace ModbusMultiTester
 		}
 
 		/// <summary>
-		/// ƒtƒH[ƒ€ƒŠƒTƒCƒY‚Ìˆ—
+		/// ãƒ•ã‚©ãƒ¼ãƒ ãƒªã‚µã‚¤ã‚ºæ™‚ã®å‡¦ç†
 		/// </summary>
 		private void MainForm_Resize(object sender, EventArgs e)
 		{
@@ -124,14 +125,14 @@ namespace ModbusMultiTester
 		}
 
 		/// <summary>
-		/// NICˆê——‚Ì‰Šú‰»
+		/// NICä¸€è¦§ã®åˆæœŸåŒ–
 		/// </summary>
 		private void InitializeNetworking()
 		{
 			comboBoxSrcIP.Items.Clear();
 			comboBoxSrcIP.Items.Add(new NicOption
 			{
-				DisplayName = "w’è‚È‚µ(OS•W€)",
+				DisplayName = "æŒ‡å®šãªã—(OSæ¨™æº–)",
 				Ip = IPAddress.Any
 			});
 
@@ -158,7 +159,9 @@ namespace ModbusMultiTester
 			}
 			catch (Exception ex)
 			{
-				AppLogger.Error($"NIC Scan Error: {ex.Message}");
+				// ä¾‹å¤–å†…å®¹ã‚’è©³ç´°ã«ãƒ­ã‚°è¨˜éŒ²
+				AppLogger.Error($"NIC Scan Error: {ex.GetType().Name} - {ex.Message}");
+				System.Diagnostics.Debug.WriteLine($"NIC Scan Exception Details:\n{ex}");
 			}
 
 			comboBoxSrcIP.Items.Add(new NicOption
@@ -177,7 +180,47 @@ namespace ModbusMultiTester
 			_pollTimer.Tick += PollTimer_Tick;
 		}
 
-		// --- UIƒCƒxƒ“ƒgƒnƒ“ƒhƒ‰ ---
+		// --- UIã‚¤ãƒ™ãƒ³ãƒˆãƒãƒ³ãƒ‰ãƒ©ãƒ¼ ---
+
+		/// <summary>
+		/// NICä¸€è¦§ã‚’æ›´æ–°ã™ã‚‹
+		/// </summary>
+		private void buttonNicRefresh_Click(object sender, EventArgs e)
+		{
+			// ç¾åœ¨é¸æŠã•ã‚Œã¦ã„ã‚‹IPã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’ä¿å­˜
+			IPAddress? currentIp = null;
+			if (comboBoxSrcIP.SelectedItem is NicOption current)
+			{
+				currentIp = current.Ip;
+			}
+
+			// NICä¸€è¦§ã‚’å†å–å¾—
+			InitializeNetworking();
+
+			// åŒã˜IPã‚¢ãƒ‰ãƒ¬ã‚¹ãŒã‚ã‚Œã°å†é¸æŠã€ãªã‘ã‚Œã°å…ˆé ­ã‚’é¸æŠ
+			if (currentIp != null)
+			{
+				bool found = false;
+				for (int i = 0; i < comboBoxSrcIP.Items.Count; i++)
+				{
+					if (comboBoxSrcIP.Items[i] is NicOption option &&
+						option.Ip.Equals(currentIp))
+					{
+						comboBoxSrcIP.SelectedIndex = i;
+						found = true;
+						break;
+					}
+				}
+
+				if (!found)
+				{
+					comboBoxSrcIP.SelectedIndex = 0; // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆã‚’é¸æŠ
+				}
+			}
+
+			// ãƒ­ã‚°ã«è¨˜éŒ²
+			AppLogger.Info("NIC list refreshed");
+		}
 
 		private void toolStripButtonAddPanel_Click(object sender, EventArgs e)
 		{
@@ -189,33 +232,58 @@ namespace ModbusMultiTester
 			var child = new MonitorForm(this.MdiChildren.Length + 1);
 			child.MdiParent = this;
 
-			// Slaveƒ‚[ƒh—p‚Ì‘‚«–ß‚µƒCƒxƒ“ƒg“o˜^
+			// ãƒ‡ãƒ¼ã‚¿ã®ç·¨é›†(æ›¸ãè¾¼ã¿)ã‚¤ãƒ™ãƒ³ãƒˆ
 			child.DataEdited += (addr, val) =>
 			{
+				// --- SLAVE MODE (å—ä¿¡) ---
 				if (radioButtonSlave.Checked && _mySlave != null)
 				{
+					/* ... çœç•¥ï¼šSlaveå´å‡¦ç† ... */
 					try
 					{
 						int typeIdx = child.RegisterTypeIndex;
 						switch (typeIdx)
 						{
-							case 0: // Coil (0x)
-								_mySlave.DataStore.CoilDiscretes.WritePoints(addr, new bool[] { val != 0 });
+							case 0: _mySlave.DataStore.CoilDiscretes.WritePoints(addr, new bool[] { val != 0 }); break;
+							case 1: _mySlave.DataStore.CoilInputs.WritePoints(addr, new bool[] { val != 0 }); break;
+							case 2: _mySlave.DataStore.InputRegisters.WritePoints(addr, new ushort[] { val }); break;
+							case 3: _mySlave.DataStore.HoldingRegisters.WritePoints(addr, new ushort[] { val }); break;
+						}
+					}
+					catch (Exception ex)
+				{
+					AppLogger.Error($"Slave Write Error: {ex.GetType().Name} - {ex.Message}");
+				}
+				}
+				// --- MASTER MODE ---
+				else if (radioButtonMaster.Checked && _modbusMaster != null)
+				{
+					// åŒæœŸçšEï¿½ï¿½æ›¸ãè¾¼ã¿ã‚’å®Ÿè¡Œï¼ˆæ›¸ãè¾¼ã¿å®ŒäºEï¿½ï¿½ç¢ºå®Ÿã«ã™ã‚‹ï¿½Eï¿½E
+					try
+					{
+						byte slaveId = (byte)numericUpDownSlaveID.Value;
+						int typeIdx = child.RegisterTypeIndex;
+
+						switch (typeIdx)
+						{
+							case 0: // Coil (Write Single Coil 0x05)
+								_modbusMaster.WriteSingleCoil(slaveId, addr, val != 0);
+								AppLogger.Info($"Master Write: Coil Addr={addr}, Val={val}");
 								break;
-							case 1: // Discrete Input (1x) -> CoilInputs
-								_mySlave.DataStore.CoilInputs.WritePoints(addr, new bool[] { val != 0 });
+							case 3: // Holding Register (Write Single Register 0x06)
+								_modbusMaster.WriteSingleRegister(slaveId, addr, val);
+								AppLogger.Info($"Master Write: Register Addr={addr}, Val={val}");
 								break;
-							case 2: // Input Register (3x)
-								_mySlave.DataStore.InputRegisters.WritePoints(addr, new ushort[] { val });
-								break;
-							case 3: // Holding Register (4x)
-								_mySlave.DataStore.HoldingRegisters.WritePoints(addr, new ushort[] { val });
+							default:
+								// Input(1x), InputReg(3x) ã¯èª­ã¿å–ã‚Šå°‚ç”¨
+								AppLogger.Error($"Write Error: Input types are read-only.");
 								break;
 						}
 					}
 					catch (Exception ex)
 					{
-						AppLogger.Error($"Slave Write Error: {ex.Message}");
+						AppLogger.Error($"Master Write Error: {ex.GetType().Name} - {ex.Message}");
+						MessageBox.Show($"æ›¸ãè¾¼ã¿ã‚¨ãƒ©ãƒ¼: {ex.Message}", "ã‚¨ãƒ©ãƒ¼", MessageBoxButtons.OK, MessageBoxIcon.Error);
 					}
 				}
 			};
@@ -226,7 +294,7 @@ namespace ModbusMultiTester
 		private void mode_CheckedChanged(object sender, EventArgs e)
 		{
 			PanelChange();
-			// ƒ‚[ƒhØ‘Ö‚ÉˆÀ‘S‚Ì‚½‚ß’ÊM‚ğØ’f‚·‚é
+			// ãƒ¢ãƒ¼ãƒ‰åˆ‡æ›¿æ™‚ã«ä¸‡å…¨ã®ãŸã‚é€šä¿¡ã‚’åˆ‡æ–­ã™ã‚‹
 			DisconnectMaster();
 			StopSlave();
 		}
@@ -252,60 +320,60 @@ namespace ModbusMultiTester
 		// ====================================================================
 
 		/// <summary>
-		/// Masterƒ‚[ƒh‚Ì“ü—Í’l‚ğŒŸØ‚µ‚Ü‚·B
-		/// MonitorForm‚Ìİ’èó‘Ô‚àƒ`ƒFƒbƒN‚µ‚Ü‚·B
+		/// Masterãƒ¢ãƒ¼ãƒ‰ã®å…¥åŠ›å€¤ã‚’æ¤œè¨¼ã—ã¾ã™ã€‚
+		/// MonitorFormã®è¨­å®šçŠ¶æ…‹ã‚‚ãƒã‚§ãƒƒã‚¯ã—ã¾ã™ã€‚
 		/// </summary>
 		private bool ValidateMasterSettings()
 		{
-			// 1.Šî–{İ’èƒ`ƒFƒbƒN
-			// IpAddressInputƒRƒ“ƒgƒ[ƒ‹‚Íí‚É³‚µ‚¢IPŒ`®(x.x.x.x)‚ğ•Ô‚·‚½‚ßA
-			// TryParse‚Å‚ÌŒµ–§‚Èƒ`ƒFƒbƒN‚Í‚Ù‚Ú•s—v‚Å‚·‚ªA”O‚Ì‚½‚ß "0.0.0.0" ‚ğ’e‚­‚È‚Ç‚Í‚±‚±‚Ås‚¦‚Ü‚·B
+			// 1.åŸºæœ¬è¨­å®šãƒã‚§ãƒƒã‚¯
+			// IpAddressInputã‚³ãƒ³ãƒˆãƒ­ãƒ¼ãƒ«ã¯å¸¸ã«æ­£ã—ã„IPå½¢å¼(x.x.x.x)ã‚’è¿”ã™ãŸã‚ã€
+			// TryParseã§ã®å³å¯†ãªãƒã‚§ãƒƒã‚¯ã¯ã»ã¼ä¸è¦ã§ã™ãŒã€å¿µã®ãŸã‚ "0.0.0.0" ç­‰ã¯é™¤å¤–ã—ã¾ã™ã€‚
 
-			// IPAddressŒ^‚Æ‚µ‚Äæ“¾‚Å‚«‚é‚©Šm”F
+			// IPAddresså‹ã¨ã—ã¦å–å¾—ã§ãã‚‹ã‹ç¢ºèª
 			if (ipAddressInputDest.GetIpAddress().Equals(IPAddress.Any) && ipAddressInputDest.Text != "0.0.0.0")
 			{
-				// Šî–{“I‚É‚±‚±‚É‚Í—ˆ‚È‚¢
-				MessageBox.Show("Ú‘±æIPƒAƒhƒŒƒX‚ª–³Œø‚Å‚·B", "“ü—ÍƒGƒ‰[", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-				return false;
+				// åŸºæœ¬çš„ã«ã“ã“ã«ã¯æ¥ãªã„
+				// åŸºæœ¬çš„ã«ã“ã“ã«ã¯æ¥ãªã„
+				MessageBox.Show("æ¥ç¶šå…ˆIPã‚¢ãƒ‰ãƒ¬ã‚¹ãŒä¸æ­£ã§ã™ã€‚", "å…¥åŠ›ã‚¨ãƒ©ãƒ¼", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			}
 			if (numericUpDownPort.Value < 1 || numericUpDownPort.Value > 65535)
 			{
-				MessageBox.Show("ƒ|[ƒg”Ô†‚ª–³Œø‚Å‚·B", "“ü—ÍƒGƒ‰[", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				MessageBox.Show("ãƒãƒ¼ãƒˆç•ªå·ãŒä¸æ­£ã§ã™ã€‚", "å…¥åŠ›ã‚¨ãƒ©ãƒ¼", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return false;
 			}
 			if (numericUpDownInterval.Value < 10)
 			{
-				MessageBox.Show("’ÊMƒCƒ“ƒ^[ƒoƒ‹‚ª’Z‚·‚¬‚Ü‚·B", "“ü—ÍƒGƒ‰[", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				MessageBox.Show("é€šä¿¡ã‚¤ãƒ³ã‚¿ãƒ¼ãƒãƒ«ãŒçŸ­ã™ãã¾ã™ã€‚", "å…¥åŠ›ã‚¨ãƒ©ãƒ¼", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return false;
 			}
 
-			// 2. ƒ‚ƒjƒ^İ’èƒ`ƒFƒbƒN (‚±‚±‚ğ’Ç‰Á)
+			// 2. ãƒ¢ãƒ‹ã‚¿è¨­å®šãƒã‚§ãƒƒã‚¯ (å¿…é ˆï¼šè¿½åŠ )
 			var monitors = this.MdiChildren.OfType<MonitorForm>().ToList();
 			if (monitors.Count == 0)
 			{
-				MessageBox.Show("ƒ‚ƒjƒ^‰æ–Êiƒpƒlƒ‹j‚ª1‚Â‚à‚ ‚è‚Ü‚¹‚ñB\nu{ƒpƒlƒ‹’Ç‰Ávƒ{ƒ^ƒ“‚Å’Ç‰Á‚µ‚Ä‚­‚¾‚³‚¢B", "İ’èƒGƒ‰[", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				MessageBox.Show("ãƒ¢ãƒ‹ã‚¿ç”»é¢(ãƒ‘ãƒãƒ«)ãŒ1ã¤ã‚‚ã‚ã‚Šã¾ã›ã‚“ã€‚\nã€Œï¼‹ãƒ‘ãƒãƒ«è¿½åŠ ã€ãƒœã‚¿ãƒ³ã§è¿½åŠ ã—ã¦ãã ã•ã„ã€‚", "è¨­å®šã‚¨ãƒ©ãƒ¼", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return false;
 			}
 
-			// uİ’è”½‰fvÏ‚İ‚Ìƒ‚ƒjƒ^‚ª­‚È‚­‚Æ‚à1‚Â‚ ‚é‚©H
+			// ã€Œè¨­å®šåæ˜ ã€æ¸ˆã¿ã®ãƒ¢ãƒ‹ã‚¿ãŒå°‘ãªãã¨ã‚‚1ã¤ã‚ã‚‹ã‹ï¼Ÿ
 			bool anyApplied = monitors.Any(m => m.IsSettingsApplied);
 			if (!anyApplied)
 			{
-				MessageBox.Show("İ’è‚ª”½‰f‚³‚ê‚Ä‚¢‚éƒ‚ƒjƒ^‚ª‚ ‚è‚Ü‚¹‚ñB\nŠeƒ‚ƒjƒ^‚Ìuİ’è”½‰fvƒ{ƒ^ƒ“‚ğ‰Ÿ‚µ‚ÄAŠÄ‹ƒAƒhƒŒƒX‚ğŠm’è‚³‚¹‚Ä‚­‚¾‚³‚¢B", "İ’èƒGƒ‰[", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				MessageBox.Show("è¨­å®šãŒåæ˜ ã•ã‚Œã¦ã„ã‚‹ãƒ¢ãƒ‹ã‚¿ãŒã‚ã‚Šã¾ã›ã‚“ã€‚\nå„ãƒ¢ãƒ‹ã‚¿ã®ã€Œè¨­å®šåæ˜ ã€ãƒœã‚¿ãƒ³ã‚’æŠ¼ã—ã¦ã€èª­å–ã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’ç¢ºå®šã•ã›ã¦ãã ã•ã„ã€‚", "è¨­å®šã‚¨ãƒ©ãƒ¼", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				return false;
 			}
 
 			return true;
 		}
 		/// <summary>
-		/// Slaveƒ‚[ƒh‚Ì“ü—Í’l‚ğŒŸØ‚µ‚Ü‚·B
+		/// Slaveãƒ¢ãƒ¼ãƒ‰ã®å…¥åŠ›å€¤ã‚’æ¤œè¨¼ã—ã¾ã™ã€‚
 		/// </summary>
 		private bool ValidateSlaveSettings()
 		{
-			// ƒ|[ƒg”Ô†ƒ`ƒFƒbƒN (numericUpDown1 = Listen Port)
+			// ãƒãƒ¼ãƒˆç•ªå·ãƒã‚§ãƒƒã‚¯ (numericUpDown1 = Listen Port)
 			if (numericUpDown1.Value < 1 || numericUpDown1.Value > 65535)
 			{
-				MessageBox.Show("‘Òóƒ|[ƒg”Ô†‚Í 1 ` 65535 ‚Ì”ÍˆÍ‚Åw’è‚µ‚Ä‚­‚¾‚³‚¢B", "“ü—ÍƒGƒ‰[", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				MessageBox.Show("å¾…å—ãƒãƒ¼ãƒˆç•ªå·ã¯ 1 ï½ 65535 ã®ç¯„å›²ã§æŒ‡å®šã—ã¦ãã ã•ã„ã€‚", "å…¥åŠ›ã‚¨ãƒ©ãƒ¼", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 				numericUpDown1.Focus();
 				return false;
 			}
@@ -314,57 +382,61 @@ namespace ModbusMultiTester
 		}
 
 		/// <summary>
-		/// Masterƒ‚[ƒhÚ‘±’†‚ÌUIƒƒbƒN/‰ğœ‚ğ§Œä‚µ‚Ü‚·B
+		/// Masterãƒ¢ãƒ¼ãƒ‰æ¥ç¶šä¸­ã®UIãƒ­ãƒƒã‚¯/è§£é™¤ã‚’åˆ¶å¾¡ã—ã¾ã™ã€‚
 		/// </summary>
-		/// <param name="isConnecting">Ú‘±’†‚È‚çtrue, Ø’f’†‚È‚çfalse</param>
+		/// <param name="isConnecting">æ¥ç¶šä¸­ãªã‚‰true, åˆ‡æ–­ä¸­ãªã‚‰false</param>
 		private void SetMasterUiState(bool isConnecting)
 		{
-			// İ’è€–Ú‚ÌƒƒbƒN
+			// è¨­å®šé …ç›®ã®ãƒ­ãƒƒã‚¯
 			ipAddressInputDest.Enabled = !isConnecting;
 			numericUpDownPort.Enabled = !isConnecting;
 			numericUpDownSlaveID.Enabled = !isConnecting;
 			numericUpDownInterval.Enabled = !isConnecting;
+			numericUpDownTimeout.Enabled = !isConnecting;
+			checkBoxOneShot.Enabled = !isConnecting;
 			comboBoxSrcIP.Enabled = !isConnecting;
+			buttonNicRefresh.Enabled = !isConnecting;
 
-			// ƒ‚[ƒhØ‘Ö‚ÌƒƒbƒN
+			// ãƒ¢ãƒ¼ãƒ‰åˆ‡æ›¿ã®ãƒ­ãƒƒã‚¯
 			groupBoxMode.Enabled = !isConnecting;
 
-			// ƒ{ƒ^ƒ“•\¦‚ÌØ‚è‘Ö‚¦
+			// ãƒœã‚¿ãƒ³è¡¨ç¤ºã®åˆ‡ã‚Šæ›¿ãˆ
 			if (isConnecting)
 			{
-				buttonConnect.Text = "Ø’f";
+				buttonConnect.Text = "åˆ‡æ–­";
 				buttonConnect.BackColor = Color.LightGreen;
 			}
 			else
 			{
-				buttonConnect.Text = "Ú‘±";
+				buttonConnect.Text = "æ¥ç¶š";
 				buttonConnect.BackColor = SystemColors.Control;
 			}
 		}
 
 		/// <summary>
-		/// Slaveƒ‚[ƒh‘Òó’†‚ÌUIƒƒbƒN/‰ğœ‚ğ§Œä‚µ‚Ü‚·B
+		/// Slaveãƒ¢ãƒ¼ãƒ‰å¾…å—ä¸­ã®UIãƒ­ãƒƒã‚¯/è§£é™¤ã‚’åˆ¶å¾¡ã—ã¾ã™ã€‚
 		/// </summary>
-		/// <param name="isListening">‘Òó’†‚È‚çtrue, ’â~’†‚È‚çfalse</param>
+		/// <param name="isListening">å¾…å—ä¸­ãªã‚‰true, åœæ­¢ä¸­ãªã‚‰false</param>
 		private void SetSlaveUiState(bool isListening)
 		{
-			// İ’è€–Ú‚ÌƒƒbƒN
+			// è¨­å®šé …ç›®ã®ãƒ­ãƒƒã‚¯
 			numericUpDown1.Enabled = !isListening; // Port
 			numericUpDown2.Enabled = !isListening; // UnitID
 			comboBoxSrcIP.Enabled = !isListening;
+			buttonNicRefresh.Enabled = !isListening;
 
-			// ƒ‚[ƒhØ‘Ö‚ÌƒƒbƒN
+			// ãƒ¢ãƒ¼ãƒ‰åˆ‡æ›¿ã®ãƒ­ãƒƒã‚¯
 			groupBoxMode.Enabled = !isListening;
 
-			// ƒ{ƒ^ƒ“•\¦‚ÌØ‚è‘Ö‚¦
+			// ãƒœã‚¿ãƒ³è¡¨ç¤ºã®åˆ‡ã‚Šæ›¿ãˆ
 			if (isListening)
 			{
-				buttonListen.Text = "’â~";
+				buttonListen.Text = "åœæ­¢";
 				buttonListen.BackColor = Color.LightGreen;
 			}
 			else
 			{
-				buttonListen.Text = "‘Òó\r\nŠJn";
+				buttonListen.Text = "å¾…å—\r\né–‹å§‹";
 				buttonListen.BackColor = SystemColors.Control;
 			}
 		}
@@ -382,15 +454,19 @@ namespace ModbusMultiTester
 				return;
 			}
 
-			// ƒoƒŠƒf[ƒVƒ‡ƒ“Às
+			// ãƒãƒªãƒ‡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’å®Ÿè¡Œ
 			if (!ValidateMasterSettings()) return;
 
 			try
 			{
-				// UIƒƒbƒN
+				// UIãƒ­ãƒƒã‚¯
 				buttonConnect.Enabled = false;
 
-				// IP/Portİ’è
+				// ãƒ—ãƒ­ã‚°ãƒ¬ã‚¹ãƒãƒ¼è¡¨ç¤ºé–‹å§‹
+				toolStripProgressBarStatus.Style = ProgressBarStyle.Marquee;
+				toolStripProgressBarStatus.Visible = true;
+
+				// IP/Portè¨­å®š
 				IPAddress sourceIp = IPAddress.Any;
 				if (comboBoxSrcIP.SelectedItem is NicOption nic) sourceIp = nic.Ip;
 				var localEndPoint = new IPEndPoint(sourceIp, 0);
@@ -401,41 +477,57 @@ namespace ModbusMultiTester
 				int targetPort = (int)numericUpDownPort.Value;
 
 				AppLogger.Info($"Connecting to {targetIp}:{targetPort}...");
-				await _masterClient.ConnectAsync(targetIp, targetPort);
+				await _masterClient.ConnectAsync(targetIp, targetPort).ConfigureAwait(false);
 
-				// Modbus\’z
+				// Modbusæ§‹ç¯‰
 				var adapter = new LoggingAdapter(_masterClient);
 				var factory = new ModbusFactory();
 				var transport = factory.CreateIpTransport(adapter);
 				_modbusMaster = new ModbusIpMaster(transport);
 
-				_modbusMaster.Transport.ReadTimeout = 1000;
-				_modbusMaster.Transport.WriteTimeout = 1000;
+				// ã‚¿ã‚¤ãƒ ã‚¢ã‚¦ãƒˆå€¤ã‚’è¨­å®š
+				int timeout = (int)numericUpDownTimeout.Value;
+				_modbusMaster.Transport.ReadTimeout = timeout;
+				_modbusMaster.Transport.WriteTimeout = timeout;
 
 				AppLogger.Info("Connected.");
 				SetMasterUiState(true);
 
-				_pollTimer.Interval = (int)numericUpDownInterval.Value;
-				_pollTimer.Start();
+				// ãƒ¯ãƒ³ã‚·ãƒ§ãƒƒãƒˆãƒ¢ãƒ¼ãƒ‰ã‹ãƒã‚§ãƒƒã‚¯
+				if (checkBoxOneShot.Checked)
+				{
+					// ãƒ¯ãƒ³ã‚·ãƒ§ãƒƒãƒˆãƒ¢ãƒ¼ãƒ‰: 1å›ã ã‘ãƒãƒ¼ãƒªãƒ³ã‚°ã—ã¦åˆ‡æ–­
+					AppLogger.Info("One-shot mode: Polling once...");
+					await ExecuteOneShotPoll().ConfigureAwait(false);
+					DisconnectMaster();
+				}
+				else
+				{
+					// é€šå¸¸ãƒ¢ãƒ¼ãƒ‰: é€£ç¶šãƒãƒ¼ãƒªãƒ³ã‚°
+					_pollTimer.Interval = (int)numericUpDownInterval.Value;
+					_pollTimer.Start();
+				}
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show($"Ú‘±ƒGƒ‰[: {ex.Message}", "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				AppLogger.Error($"Connect Fail: {ex.Message}");
+				MessageBox.Show($"æ¥ç¶šã‚¨ãƒ©ãƒ¼: {ex.Message}", "Connection Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				AppLogger.Error($"Connect Fail: {ex.GetType().Name} - {ex.Message}");
 				DisconnectMaster();
 			}
 			finally
 			{
+				// ãƒ—ãƒ­ã‚°ãƒ¬ã‚¹ãƒãƒ¼éè¡¨ç¤º
+				toolStripProgressBarStatus.Visible = false;
 				buttonConnect.Enabled = true;
 			}
 		}
 
 		private void DisconnectMaster()
 		{
-			// ƒ^ƒCƒ}[’â~
+			// ï¿½^ï¿½Cï¿½}ï¿½[åœæ­¢
 			_pollTimer.Stop();
 
-			// ƒŠƒ\[ƒX‰ğ•ú
+			// ãƒªã‚½ãƒ¼ã‚¹è§£æ”¾
 			_modbusMaster?.Dispose();
 			_masterClient?.Close();
 			_modbusMaster = null;
@@ -443,18 +535,87 @@ namespace ModbusMultiTester
 
 			AppLogger.Info("Disconnected.");
 
-			// UIƒƒbƒN‰ğœ
+			// UIãƒ­ãƒƒã‚¯è§£é™¤
 			SetMasterUiState(false);
+		}
+
+		/// <summary>
+		/// ãƒ¯ãƒ³ã‚·ãƒ§ãƒƒãƒˆãƒ¢ãƒ¼ãƒ‰ç”¨: 1å›ã ã‘ãƒãƒ¼ãƒªãƒ³ã‚°ã‚’å®Ÿè¡Œ
+		/// </summary>
+		private async Task ExecuteOneShotPoll()
+		{
+			if (_modbusMaster == null) return;
+
+			try
+			{
+				var monitors = this.MdiChildren.OfType<MonitorForm>().ToList();
+				byte slaveId = (byte)numericUpDownSlaveID.Value;
+
+				foreach (var monitor in monitors)
+				{
+					// è¨­å®šæœªåæ˜ ã®ãƒ¢ãƒ‹ã‚¿ã¯ã‚¹ã‚­ãƒƒãƒ—
+					if (!monitor.IsSettingsApplied) continue;
+
+					// ãƒã‚¹ã‚¿ãƒ¼ãƒ¢ãƒ¼ãƒ‰ã§ã‚‚ç·¨é›†å¯èƒ½ã«ã™ã‚‹(ãƒ¬ã‚¸ã‚¹ã‚¿ã‚¿ã‚¤ãƒ—ã«å¿œã˜ã¦)
+					monitor.EnableGridEditing(true, isMasterMode: true);
+
+					// ç¢ºå®šæ¸ˆã¿ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’ä½¿ç”¨
+					ushort startAddr = monitor.CurrentStartAddress;
+					ushort count = monitor.CurrentCount;
+					int typeIdx = monitor.RegisterTypeIndex;
+
+					try
+					{
+						ushort[]? data = null;
+						bool[]? boolData = null;
+
+						await Task.Run(() =>
+						{
+							switch (typeIdx)
+							{
+								case 0: boolData = _modbusMaster.ReadCoils(slaveId, startAddr, count); break;
+								case 1: boolData = _modbusMaster.ReadInputs(slaveId, startAddr, count); break;
+								case 2: data = _modbusMaster.ReadInputRegisters(slaveId, startAddr, count); break;
+								case 3: data = _modbusMaster.ReadHoldingRegisters(slaveId, startAddr, count); break;
+							}
+						});
+
+						if (boolData != null) data = boolData.Select(b => (ushort)(b ? 1 : 0)).ToArray();
+
+						if (data != null) monitor.UpdateResult(data, true);
+					}
+					catch (Exception ex)
+					{
+						monitor.UpdateResult(new ushort[0], false, ex.Message);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				AppLogger.Error($"One-shot poll error: {ex.Message}");
+			}
 		}
 
 		private async void PollTimer_Tick(object sender, EventArgs e)
 		{
+			// å‰å›ã®å‡¦ç†ãŒã¾ã å®Œäº†ã—ã¦ã„ãªã„å ´åˆã¯ã‚¹ã‚­ãƒƒãƒ—
+			if (_isPolling)
+			{
+				AppLogger.Error("PollTimer_Tick: Previous poll still in progress, skipping this tick");
+				return;
+			}
+
+			_isPolling = true;
 			_pollTimer.Stop();
 
 			if (radioButtonMaster.Checked)
 			{
 				// --- MASTER MODE ---
-				if (_modbusMaster == null) return;
+				if (_modbusMaster == null)
+				{
+					_isPolling = false;
+					return;
+				}
 
 				try
 				{
@@ -463,10 +624,13 @@ namespace ModbusMultiTester
 
 					foreach (var monitor in monitors)
 					{
-						// İ’è–¢”½‰f‚Ìƒ‚ƒjƒ^‚ÍƒXƒLƒbƒv
+						// è¨­å®šæœªåæ˜ ã®ãƒ¢ãƒ‹ã‚¿ã¯ã‚¹ã‚­ãƒƒãƒ—
 						if (!monitor.IsSettingsApplied) continue;
 
-						// Šm’èÏ‚İ‚ÌƒvƒƒpƒeƒB‚ğg—p
+						// ãƒã‚¹ã‚¿ãƒ¼ãƒ¢ãƒ¼ãƒ‰ã§ã‚‚ç·¨é›Eï¿½ï¿½èƒ½ã«ã™ã‚‹ï¿½Eï¿½ãƒ¬ã‚¸ã‚¹ã‚¿ã‚¿ã‚¤ãƒ—ã«å¿œã˜ã¦ï¿½Eï¿½E
+						monitor.EnableGridEditing(true, isMasterMode: true);
+
+						// ç¢ºå®šæ¸ˆã¿ã®ãƒ—ãƒ­ãƒ‘ãƒ†ã‚£ã‚’ä½¿ç”¨
 						ushort startAddr = monitor.CurrentStartAddress;
 						ushort count = monitor.CurrentCount;
 						int typeIdx = monitor.RegisterTypeIndex;
@@ -499,6 +663,7 @@ namespace ModbusMultiTester
 				}
 				finally
 				{
+					_isPolling = false;
 					if (_masterClient != null && _masterClient.Connected) _pollTimer.Start();
 					else DisconnectMaster();
 				}
@@ -506,45 +671,52 @@ namespace ModbusMultiTester
 			else
 			{
 				// --- SLAVE MODE ---
-				if (_mySlave != null)
+				try
 				{
-					var monitors = this.MdiChildren.OfType<MonitorForm>().ToList();
-					foreach (var monitor in monitors)
+					if (_mySlave != null)
 					{
-						// İ’è–¢”½‰f‚È‚ç‰½‚à‚µ‚È‚¢iƒOƒŠƒbƒh‚àì‚ç‚ê‚È‚¢j
-						if (!monitor.IsSettingsApplied) continue;
-
-						monitor.EnableGridEditing(true);
-
-						ushort startAddr = monitor.CurrentStartAddress;
-						ushort count = monitor.CurrentCount;
-						int typeIdx = monitor.RegisterTypeIndex;
-
-						try
+						var monitors = this.MdiChildren.OfType<MonitorForm>().ToList();
+						foreach (var monitor in monitors)
 						{
-							ushort[] data = new ushort[count];
-							// DataStore‚©‚ç“Ç‚İo‚µ
-							switch (typeIdx)
+							// è¨­å®šæœªåæ˜ ãªã‚‰ä½•ã‚‚ã—ãªã„(ã‚°ãƒªãƒƒãƒ‰æ›´æ–°ã—ãªã„)
+							if (!monitor.IsSettingsApplied) continue;
+
+							monitor.EnableGridEditing(true);
+
+							ushort startAddr = monitor.CurrentStartAddress;
+							ushort count = monitor.CurrentCount;
+							int typeIdx = monitor.RegisterTypeIndex;
+
+							try
 							{
-								case 0:
-									var coils = _mySlave.DataStore.CoilDiscretes.ReadPoints(startAddr, count);
-									data = coils.Select(b => (ushort)(b ? 1 : 0)).ToArray();
-									break;
-								case 1:
-									var inputs = _mySlave.DataStore.CoilInputs.ReadPoints(startAddr, count);
-									data = inputs.Select(b => (ushort)(b ? 1 : 0)).ToArray();
-									break;
-								case 2:
-									data = _mySlave.DataStore.InputRegisters.ReadPoints(startAddr, count);
-									break;
-								case 3:
-									data = _mySlave.DataStore.HoldingRegisters.ReadPoints(startAddr, count);
-									break;
+								ushort[] data = new ushort[count];
+								// DataStoreã‹ã‚‰èª­ã¿å‡ºã—
+								switch (typeIdx)
+								{
+									case 0:
+										var coils = _mySlave.DataStore.CoilDiscretes.ReadPoints(startAddr, count);
+										data = coils.Select(b => (ushort)(b ? 1 : 0)).ToArray();
+										break;
+									case 1:
+										var inputs = _mySlave.DataStore.CoilInputs.ReadPoints(startAddr, count);
+										data = inputs.Select(b => (ushort)(b ? 1 : 0)).ToArray();
+										break;
+									case 2:
+										data = _mySlave.DataStore.InputRegisters.ReadPoints(startAddr, count);
+										break;
+									case 3:
+										data = _mySlave.DataStore.HoldingRegisters.ReadPoints(startAddr, count);
+										break;
+								}
+								monitor.UpdateResult(data, true);
 							}
-							monitor.UpdateResult(data, true);
+							catch { }
 						}
-						catch { }
 					}
+				}
+				finally
+				{
+					_isPolling = false;
 					_pollTimer.Start();
 				}
 			}
@@ -557,19 +729,23 @@ namespace ModbusMultiTester
 
 		private void buttonListen_Click(object sender, EventArgs e)
 		{
-			// Šù‚ÉListen’†‚Ìê‡‚Í’â~ˆ—‚Ö
+			// æ—¢ã«Listenä¸­ã®å ´åˆã¯åœæ­¢ã™ã‚‹
 			if (_slaveListener != null)
 			{
 				StopSlave();
 				return;
 			}
 
-			// ƒoƒŠƒf[ƒVƒ‡ƒ“Às
+			// ãƒãƒªãƒ‡ãƒ¼ã‚·ãƒ§ãƒ³ã‚’å®Ÿè¡Œ
 			if (!ValidateSlaveSettings()) return;
 
 			try
 			{
-				// 1. IP & Port İ’è
+				// ãƒ—ãƒ­ã‚°ãƒ¬ã‚¹ãƒãƒ¼è¡¨ç¤ºé–‹å§‹
+				toolStripProgressBarStatus.Style = ProgressBarStyle.Marquee;
+				toolStripProgressBarStatus.Visible = true;
+
+				// 1. IP & Port è¨­å®š
 				IPAddress listenIp = IPAddress.Any;
 				if (comboBoxSrcIP.SelectedItem is NicOption nic)
 				{
@@ -577,11 +753,11 @@ namespace ModbusMultiTester
 				}
 				int port = (int)numericUpDown1.Value; // Port
 
-				// 2. Listener‹N“®
+				// 2. Listenerä½œæˆ
 				_slaveListener = new TcpListener(listenIp, port);
 				_slaveListener.Start();
 
-				// 3. NModbus Slave‹@”\\’z
+				// 3. NModbus Slaveæ©Ÿèƒ½æ§‹ç¯‰
 				var factory = new ModbusFactory();
 				_slaveNetwork = factory.CreateSlaveNetwork(_slaveListener);
 
@@ -589,23 +765,31 @@ namespace ModbusMultiTester
 				_mySlave = factory.CreateSlave(unitId);
 				_slaveNetwork.AddSlave(_mySlave);
 
-				// 4. ListenŠJn
+				// 4. Listené–‹å§‹
 				_slaveNetwork.ListenAsync();
 
 				AppLogger.Info($"Slave Started on {listenIp}:{port}, UnitID={unitId}");
 
-				// ‘Òó¬Œ÷ó‘Ô‚ÌUIƒZƒbƒg
+				// å¾…å—æˆåŠŸçŠ¶æ…‹ã®UIè¨­å®š
 				SetSlaveUiState(true);
 
-				// ‰æ–Ê“¯Šú—pƒ^ƒCƒ}[ŠJn
+				// ç”»é¢æ›´æ–°ç”¨ã‚¿ã‚¤ãƒãƒ¼é–‹å§‹
 				_pollTimer.Interval = (int)numericUpDownInterval.Value;
 				_pollTimer.Start();
+
+				// ãƒ—ãƒ­ã‚°ãƒ¬ã‚¹ãƒãƒ¼éè¡¨ç¤º
+				toolStripProgressBarStatus.Visible = false;
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show($"‘ÒóŠJnƒGƒ‰[: {ex.Message}", "Listen Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				AppLogger.Error($"Listen Error: {ex.Message}");
+				MessageBox.Show($"å¾…å—é–‹å§‹ã‚¨ãƒ©ãƒ¼: {ex.Message}", "Listen Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				AppLogger.Error($"Listen Error: {ex.GetType().Name} - {ex.Message}");
 				StopSlave();
+			}
+			finally
+			{
+				// ãƒ—ãƒ­ã‚°ãƒ¬ã‚¹ãƒãƒ¼éè¡¨ç¤ºï¼ˆã‚¨ãƒ©ãƒ¼æ™‚ã‚‚ç¢ºå®Ÿã«éè¡¨ç¤ºï¼‰
+				toolStripProgressBarStatus.Visible = false;
 			}
 		}
 
@@ -625,7 +809,7 @@ namespace ModbusMultiTester
 
 			AppLogger.Info("Slave Stopped.");
 
-			// UIƒƒbƒN‰ğœ
+			// UIãƒ­ãƒƒã‚¯è§£é™¤
 			SetSlaveUiState(false);
 		}
 
@@ -699,6 +883,12 @@ namespace ModbusMultiTester
 		private void tableLayoutPanel2_Paint(object sender, PaintEventArgs e)
 		{
 
+		}
+
+		private void toolStripButtonInfo_Click(object sender, EventArgs e)
+		{
+			InfoForm infoForm = new InfoForm();
+			infoForm.ShowDialog(this);
 		}
 	}
 }

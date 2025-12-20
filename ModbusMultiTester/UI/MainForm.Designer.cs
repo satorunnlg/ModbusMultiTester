@@ -35,7 +35,9 @@
 			radioButtonMaster = new RadioButton();
 			radioButtonSlave = new RadioButton();
 			groupBox2 = new GroupBox();
+			tableLayoutPanel5 = new TableLayoutPanel();
 			comboBoxSrcIP = new ComboBox();
+			buttonNicRefresh = new Button();
 			groupBoxSetting = new GroupBox();
 			panelSlave = new Panel();
 			tableLayoutPanel3 = new TableLayoutPanel();
@@ -55,15 +57,23 @@
 			numericUpDownInterval = new NumericUpDown();
 			buttonConnect = new Button();
 			ipAddressInputDest = new ModbusMultiTester.UI.IpAddressInput();
+			label7 = new Label();
+			numericUpDownTimeout = new NumericUpDown();
+			checkBoxOneShot = new CheckBox();
 			toolStrip1 = new ToolStrip();
 			toolStripButtonAddPanel = new ToolStripButton();
 			toolStripLabel1 = new ToolStripLabel();
+			toolStripButtonInfo = new ToolStripButton();
+			toolStripSeparator1 = new ToolStripSeparator();
 			toolStripButton2 = new ToolStripButton();
 			toolStripButton3 = new ToolStripButton();
+			statusStrip1 = new StatusStrip();
+			toolStripProgressBarStatus = new ToolStripProgressBar();
 			tableLayoutPanel1.SuspendLayout();
 			groupBoxMode.SuspendLayout();
 			tableLayoutPanel4.SuspendLayout();
 			groupBox2.SuspendLayout();
+			tableLayoutPanel5.SuspendLayout();
 			groupBoxSetting.SuspendLayout();
 			panelSlave.SuspendLayout();
 			tableLayoutPanel3.SuspendLayout();
@@ -74,7 +84,9 @@
 			((System.ComponentModel.ISupportInitialize)numericUpDownPort).BeginInit();
 			((System.ComponentModel.ISupportInitialize)numericUpDownSlaveID).BeginInit();
 			((System.ComponentModel.ISupportInitialize)numericUpDownInterval).BeginInit();
+			((System.ComponentModel.ISupportInitialize)numericUpDownTimeout).BeginInit();
 			toolStrip1.SuspendLayout();
+			statusStrip1.SuspendLayout();
 			SuspendLayout();
 			// 
 			// tableLayoutPanel1
@@ -92,7 +104,7 @@
 			tableLayoutPanel1.RowCount = 2;
 			tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 55F));
 			tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-			tableLayoutPanel1.Size = new Size(1099, 145);
+			tableLayoutPanel1.Size = new Size(1099, 173);
 			tableLayoutPanel1.TabIndex = 0;
 			// 
 			// groupBoxMode
@@ -152,7 +164,7 @@
 			// 
 			// groupBox2
 			// 
-			groupBox2.Controls.Add(comboBoxSrcIP);
+			groupBox2.Controls.Add(tableLayoutPanel5);
 			groupBox2.Dock = DockStyle.Fill;
 			groupBox2.Location = new Point(552, 3);
 			groupBox2.Name = "groupBox2";
@@ -161,15 +173,43 @@
 			groupBox2.TabStop = false;
 			groupBox2.Text = "ソースIP";
 			// 
+			// tableLayoutPanel5
+			// 
+			tableLayoutPanel5.ColumnCount = 2;
+			tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+			tableLayoutPanel5.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 60F));
+			tableLayoutPanel5.Controls.Add(comboBoxSrcIP, 0, 0);
+			tableLayoutPanel5.Controls.Add(buttonNicRefresh, 1, 0);
+			tableLayoutPanel5.Dock = DockStyle.Fill;
+			tableLayoutPanel5.Location = new Point(3, 19);
+			tableLayoutPanel5.Name = "tableLayoutPanel5";
+			tableLayoutPanel5.RowCount = 1;
+			tableLayoutPanel5.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+			tableLayoutPanel5.Size = new Size(538, 27);
+			tableLayoutPanel5.TabIndex = 1;
+			// 
 			// comboBoxSrcIP
 			// 
 			comboBoxSrcIP.Dock = DockStyle.Fill;
 			comboBoxSrcIP.DropDownStyle = ComboBoxStyle.DropDownList;
 			comboBoxSrcIP.FormattingEnabled = true;
-			comboBoxSrcIP.Location = new Point(3, 19);
+			comboBoxSrcIP.Location = new Point(3, 2);
+			comboBoxSrcIP.Margin = new Padding(3, 2, 3, 3);
 			comboBoxSrcIP.Name = "comboBoxSrcIP";
-			comboBoxSrcIP.Size = new Size(538, 23);
+			comboBoxSrcIP.Size = new Size(472, 23);
 			comboBoxSrcIP.TabIndex = 0;
+			// 
+			// buttonNicRefresh
+			// 
+			buttonNicRefresh.Dock = DockStyle.Fill;
+			buttonNicRefresh.Location = new Point(481, 2);
+			buttonNicRefresh.Margin = new Padding(3, 2, 3, 2);
+			buttonNicRefresh.Name = "buttonNicRefresh";
+			buttonNicRefresh.Size = new Size(54, 23);
+			buttonNicRefresh.TabIndex = 1;
+			buttonNicRefresh.Text = "更新";
+			buttonNicRefresh.UseVisualStyleBackColor = true;
+			buttonNicRefresh.Click += buttonNicRefresh_Click;
 			// 
 			// groupBoxSetting
 			// 
@@ -179,7 +219,7 @@
 			groupBoxSetting.Dock = DockStyle.Fill;
 			groupBoxSetting.Location = new Point(3, 58);
 			groupBoxSetting.Name = "groupBoxSetting";
-			groupBoxSetting.Size = new Size(1093, 84);
+			groupBoxSetting.Size = new Size(1093, 112);
 			groupBoxSetting.TabIndex = 5;
 			groupBoxSetting.TabStop = false;
 			groupBoxSetting.Text = "設定";
@@ -187,9 +227,9 @@
 			// panelSlave
 			// 
 			panelSlave.Controls.Add(tableLayoutPanel3);
-			panelSlave.Location = new Point(462, 22);
+			panelSlave.Location = new Point(642, 22);
 			panelSlave.Name = "panelSlave";
-			panelSlave.Size = new Size(445, 60);
+			panelSlave.Size = new Size(445, 90);
 			panelSlave.TabIndex = 1;
 			// 
 			// tableLayoutPanel3
@@ -199,7 +239,7 @@
 			tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
 			tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F));
 			tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-			tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 60F));
+			tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90F));
 			tableLayoutPanel3.Controls.Add(label5, 0, 0);
 			tableLayoutPanel3.Controls.Add(label6, 2, 0);
 			tableLayoutPanel3.Controls.Add(numericUpDown1, 1, 0);
@@ -213,8 +253,7 @@
 			tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
 			tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
 			tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-			tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-			tableLayoutPanel3.Size = new Size(445, 60);
+			tableLayoutPanel3.Size = new Size(445, 90);
 			tableLayoutPanel3.TabIndex = 0;
 			// 
 			// label5
@@ -232,7 +271,7 @@
 			// 
 			label6.AutoSize = true;
 			label6.Dock = DockStyle.Fill;
-			label6.Location = new Point(195, 0);
+			label6.Location = new Point(180, 0);
 			label6.Name = "label6";
 			label6.Size = new Size(94, 30);
 			label6.TabIndex = 1;
@@ -246,28 +285,30 @@
 			numericUpDown1.Location = new Point(103, 3);
 			numericUpDown1.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
 			numericUpDown1.Name = "numericUpDown1";
-			numericUpDown1.Size = new Size(86, 23);
+			numericUpDown1.Size = new Size(71, 23);
 			numericUpDown1.TabIndex = 3;
+			numericUpDown1.TextAlign = HorizontalAlignment.Right;
 			numericUpDown1.Value = new decimal(new int[] { 502, 0, 0, 0 });
 			// 
 			// numericUpDown2
 			// 
 			numericUpDown2.BorderStyle = BorderStyle.FixedSingle;
 			numericUpDown2.Dock = DockStyle.Fill;
-			numericUpDown2.Location = new Point(295, 3);
+			numericUpDown2.Location = new Point(280, 3);
 			numericUpDown2.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
 			numericUpDown2.Name = "numericUpDown2";
-			numericUpDown2.Size = new Size(86, 23);
+			numericUpDown2.Size = new Size(71, 23);
 			numericUpDown2.TabIndex = 3;
+			numericUpDown2.TextAlign = HorizontalAlignment.Right;
 			numericUpDown2.Value = new decimal(new int[] { 1, 0, 0, 0 });
 			// 
 			// buttonListen
 			// 
 			buttonListen.Dock = DockStyle.Fill;
-			buttonListen.Location = new Point(387, 3);
+			buttonListen.Location = new Point(357, 3);
 			buttonListen.Name = "buttonListen";
-			tableLayoutPanel3.SetRowSpan(buttonListen, 2);
-			buttonListen.Size = new Size(55, 54);
+			tableLayoutPanel3.SetRowSpan(buttonListen, 3);
+			buttonListen.Size = new Size(85, 84);
 			buttonListen.TabIndex = 4;
 			buttonListen.Text = "待受\r\n開始";
 			buttonListen.UseVisualStyleBackColor = true;
@@ -278,7 +319,7 @@
 			panelMaster.Controls.Add(tableLayoutPanel2);
 			panelMaster.Location = new Point(9, 22);
 			panelMaster.Name = "panelMaster";
-			panelMaster.Size = new Size(444, 60);
+			panelMaster.Size = new Size(627, 90);
 			panelMaster.TabIndex = 0;
 			// 
 			// tableLayoutPanel2
@@ -288,7 +329,9 @@
 			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
 			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 100F));
 			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
-			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 60F));
+			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 90F));
+			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
+			tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 20F));
 			tableLayoutPanel2.Controls.Add(label1, 0, 0);
 			tableLayoutPanel2.Controls.Add(label2, 2, 0);
 			tableLayoutPanel2.Controls.Add(label3, 2, 1);
@@ -298,6 +341,9 @@
 			tableLayoutPanel2.Controls.Add(numericUpDownInterval, 3, 1);
 			tableLayoutPanel2.Controls.Add(buttonConnect, 4, 0);
 			tableLayoutPanel2.Controls.Add(ipAddressInputDest, 1, 0);
+			tableLayoutPanel2.Controls.Add(label7, 0, 2);
+			tableLayoutPanel2.Controls.Add(numericUpDownTimeout, 1, 2);
+			tableLayoutPanel2.Controls.Add(checkBoxOneShot, 3, 2);
 			tableLayoutPanel2.Dock = DockStyle.Fill;
 			tableLayoutPanel2.Location = new Point(0, 0);
 			tableLayoutPanel2.Margin = new Padding(0);
@@ -305,12 +351,8 @@
 			tableLayoutPanel2.RowCount = 3;
 			tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
 			tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-			tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
-			tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-			tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-			tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-			tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 20F));
-			tableLayoutPanel2.Size = new Size(444, 60);
+			tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+			tableLayoutPanel2.Size = new Size(627, 90);
 			tableLayoutPanel2.TabIndex = 0;
 			// 
 			// label1
@@ -328,7 +370,7 @@
 			// 
 			label2.AutoSize = true;
 			label2.Dock = DockStyle.Fill;
-			label2.Location = new Point(195, 0);
+			label2.Location = new Point(271, 0);
 			label2.Name = "label2";
 			label2.Size = new Size(94, 30);
 			label2.TabIndex = 1;
@@ -339,7 +381,7 @@
 			// 
 			label3.AutoSize = true;
 			label3.Dock = DockStyle.Fill;
-			label3.Location = new Point(195, 30);
+			label3.Location = new Point(271, 30);
 			label3.Name = "label3";
 			label3.Size = new Size(94, 30);
 			label3.TabIndex = 1;
@@ -361,11 +403,12 @@
 			// 
 			numericUpDownPort.BorderStyle = BorderStyle.FixedSingle;
 			numericUpDownPort.Dock = DockStyle.Fill;
-			numericUpDownPort.Location = new Point(295, 3);
+			numericUpDownPort.Location = new Point(371, 3);
 			numericUpDownPort.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
 			numericUpDownPort.Name = "numericUpDownPort";
-			numericUpDownPort.Size = new Size(86, 23);
+			numericUpDownPort.Size = new Size(162, 23);
 			numericUpDownPort.TabIndex = 3;
+			numericUpDownPort.TextAlign = HorizontalAlignment.Right;
 			numericUpDownPort.Value = new decimal(new int[] { 502, 0, 0, 0 });
 			// 
 			// numericUpDownSlaveID
@@ -375,28 +418,30 @@
 			numericUpDownSlaveID.Location = new Point(103, 33);
 			numericUpDownSlaveID.Maximum = new decimal(new int[] { 255, 0, 0, 0 });
 			numericUpDownSlaveID.Name = "numericUpDownSlaveID";
-			numericUpDownSlaveID.Size = new Size(86, 23);
+			numericUpDownSlaveID.Size = new Size(162, 23);
 			numericUpDownSlaveID.TabIndex = 4;
+			numericUpDownSlaveID.TextAlign = HorizontalAlignment.Right;
 			numericUpDownSlaveID.Value = new decimal(new int[] { 1, 0, 0, 0 });
 			// 
 			// numericUpDownInterval
 			// 
 			numericUpDownInterval.BorderStyle = BorderStyle.FixedSingle;
 			numericUpDownInterval.Dock = DockStyle.Fill;
-			numericUpDownInterval.Location = new Point(295, 33);
+			numericUpDownInterval.Location = new Point(371, 33);
 			numericUpDownInterval.Maximum = new decimal(new int[] { 10000, 0, 0, 0 });
 			numericUpDownInterval.Name = "numericUpDownInterval";
-			numericUpDownInterval.Size = new Size(86, 23);
+			numericUpDownInterval.Size = new Size(162, 23);
 			numericUpDownInterval.TabIndex = 5;
+			numericUpDownInterval.TextAlign = HorizontalAlignment.Right;
 			numericUpDownInterval.Value = new decimal(new int[] { 100, 0, 0, 0 });
 			// 
 			// buttonConnect
 			// 
 			buttonConnect.Dock = DockStyle.Fill;
-			buttonConnect.Location = new Point(387, 3);
+			buttonConnect.Location = new Point(539, 3);
 			buttonConnect.Name = "buttonConnect";
-			tableLayoutPanel2.SetRowSpan(buttonConnect, 2);
-			buttonConnect.Size = new Size(54, 54);
+			tableLayoutPanel2.SetRowSpan(buttonConnect, 3);
+			buttonConnect.Size = new Size(85, 84);
 			buttonConnect.TabIndex = 6;
 			buttonConnect.Text = "接続";
 			buttonConnect.UseVisualStyleBackColor = true;
@@ -410,17 +455,53 @@
 			ipAddressInputDest.Location = new Point(103, 3);
 			ipAddressInputDest.Name = "ipAddressInputDest";
 			ipAddressInputDest.Padding = new Padding(1);
-			ipAddressInputDest.Size = new Size(86, 20);
+			ipAddressInputDest.Size = new Size(162, 20);
 			ipAddressInputDest.TabIndex = 7;
 			ipAddressInputDest.Text = "127.0.0.1";
+			// 
+			// label7
+			// 
+			label7.AutoSize = true;
+			label7.Dock = DockStyle.Fill;
+			label7.Location = new Point(3, 60);
+			label7.Name = "label7";
+			label7.Size = new Size(94, 30);
+			label7.TabIndex = 1;
+			label7.Text = "タイムアウト";
+			label7.TextAlign = ContentAlignment.MiddleRight;
+			// 
+			// numericUpDownTimeout
+			// 
+			numericUpDownTimeout.BorderStyle = BorderStyle.FixedSingle;
+			numericUpDownTimeout.Dock = DockStyle.Fill;
+			numericUpDownTimeout.Location = new Point(103, 63);
+			numericUpDownTimeout.Maximum = new decimal(new int[] { 65535, 0, 0, 0 });
+			numericUpDownTimeout.Name = "numericUpDownTimeout";
+			numericUpDownTimeout.Size = new Size(162, 23);
+			numericUpDownTimeout.TabIndex = 4;
+			numericUpDownTimeout.TextAlign = HorizontalAlignment.Right;
+			numericUpDownTimeout.Value = new decimal(new int[] { 5000, 0, 0, 0 });
+			// 
+			// checkBoxOneShot
+			// 
+			checkBoxOneShot.AutoSize = true;
+			checkBoxOneShot.Checked = true;
+			checkBoxOneShot.CheckState = CheckState.Checked;
+			checkBoxOneShot.Dock = DockStyle.Fill;
+			checkBoxOneShot.Location = new Point(371, 63);
+			checkBoxOneShot.Name = "checkBoxOneShot";
+			checkBoxOneShot.Size = new Size(162, 24);
+			checkBoxOneShot.TabIndex = 8;
+			checkBoxOneShot.Text = "ワンショットモード";
+			checkBoxOneShot.UseVisualStyleBackColor = true;
 			// 
 			// toolStrip1
 			// 
 			toolStrip1.CanOverflow = false;
 			toolStrip1.GripMargin = new Padding(0);
 			toolStrip1.GripStyle = ToolStripGripStyle.Hidden;
-			toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonAddPanel, toolStripLabel1, toolStripButton2, toolStripButton3 });
-			toolStrip1.Location = new Point(0, 145);
+			toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButtonAddPanel, toolStripLabel1, toolStripButtonInfo, toolStripSeparator1, toolStripButton2, toolStripButton3 });
+			toolStrip1.Location = new Point(0, 173);
 			toolStrip1.Name = "toolStrip1";
 			toolStrip1.RenderMode = ToolStripRenderMode.System;
 			toolStrip1.Size = new Size(1099, 25);
@@ -433,14 +514,31 @@
 			toolStripButtonAddPanel.Image = (Image)resources.GetObject("toolStripButtonAddPanel.Image");
 			toolStripButtonAddPanel.ImageTransparentColor = Color.Magenta;
 			toolStripButtonAddPanel.Name = "toolStripButtonAddPanel";
-			toolStripButtonAddPanel.Size = new Size(77, 22);
-			toolStripButtonAddPanel.Text = "＋パネル追加";
+			toolStripButtonAddPanel.Size = new Size(104, 22);
+			toolStripButtonAddPanel.Text = "＋モニタパネル追加";
 			toolStripButtonAddPanel.Click += toolStripButtonAddPanel_Click;
 			// 
 			// toolStripLabel1
 			// 
 			toolStripLabel1.Name = "toolStripLabel1";
 			toolStripLabel1.Size = new Size(0, 22);
+			// 
+			// toolStripButtonInfo
+			// 
+			toolStripButtonInfo.Alignment = ToolStripItemAlignment.Right;
+			toolStripButtonInfo.DisplayStyle = ToolStripItemDisplayStyle.Text;
+			toolStripButtonInfo.Image = (Image)resources.GetObject("toolStripButtonInfo.Image");
+			toolStripButtonInfo.ImageTransparentColor = Color.Magenta;
+			toolStripButtonInfo.Name = "toolStripButtonInfo";
+			toolStripButtonInfo.Size = new Size(60, 22);
+			toolStripButtonInfo.Text = "ソフト情報";
+			toolStripButtonInfo.Click += toolStripButtonInfo_Click;
+			// 
+			// toolStripSeparator1
+			// 
+			toolStripSeparator1.Alignment = ToolStripItemAlignment.Right;
+			toolStripSeparator1.Name = "toolStripSeparator1";
+			toolStripSeparator1.Size = new Size(6, 25);
 			// 
 			// toolStripButton2
 			// 
@@ -464,13 +562,29 @@
 			toolStripButton3.Text = "縦に整列";
 			toolStripButton3.Click += toolStripButton3_Click;
 			// 
+			// statusStrip1
+			// 
+			statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripProgressBarStatus });
+			statusStrip1.Location = new Point(0, 737);
+			statusStrip1.Name = "statusStrip1";
+			statusStrip1.Size = new Size(1099, 22);
+			statusStrip1.TabIndex = 4;
+			statusStrip1.Text = "statusStrip1";
+			// 
+			// toolStripProgressBarStatus
+			// 
+			toolStripProgressBarStatus.Name = "toolStripProgressBarStatus";
+			toolStripProgressBarStatus.Size = new Size(100, 16);
+			// 
 			// MainForm
 			// 
 			AutoScaleDimensions = new SizeF(7F, 15F);
 			AutoScaleMode = AutoScaleMode.Font;
 			ClientSize = new Size(1099, 759);
+			Controls.Add(statusStrip1);
 			Controls.Add(toolStrip1);
 			Controls.Add(tableLayoutPanel1);
+			Icon = (Icon)resources.GetObject("$this.Icon");
 			IsMdiContainer = true;
 			Name = "MainForm";
 			Text = "ModbusMultiTester";
@@ -481,6 +595,7 @@
 			tableLayoutPanel4.ResumeLayout(false);
 			tableLayoutPanel4.PerformLayout();
 			groupBox2.ResumeLayout(false);
+			tableLayoutPanel5.ResumeLayout(false);
 			groupBoxSetting.ResumeLayout(false);
 			panelSlave.ResumeLayout(false);
 			tableLayoutPanel3.ResumeLayout(false);
@@ -493,8 +608,11 @@
 			((System.ComponentModel.ISupportInitialize)numericUpDownPort).EndInit();
 			((System.ComponentModel.ISupportInitialize)numericUpDownSlaveID).EndInit();
 			((System.ComponentModel.ISupportInitialize)numericUpDownInterval).EndInit();
+			((System.ComponentModel.ISupportInitialize)numericUpDownTimeout).EndInit();
 			toolStrip1.ResumeLayout(false);
 			toolStrip1.PerformLayout();
+			statusStrip1.ResumeLayout(false);
+			statusStrip1.PerformLayout();
 			ResumeLayout(false);
 			PerformLayout();
 		}
@@ -532,5 +650,15 @@
 		private ToolStripButton toolStripButton3;
 		private TableLayoutPanel tableLayoutPanel4;
 		private UI.IpAddressInput ipAddressInputDest;
+		private Label label7;
+		private NumericUpDown numericUpDownTimeout;
+		private Button button1;
+		private CheckBox checkBoxOneShot;
+		private TableLayoutPanel tableLayoutPanel5;
+		private Button buttonNicRefresh;
+		private ToolStripButton toolStripButtonInfo;
+		private ToolStripSeparator toolStripSeparator1;
+		private StatusStrip statusStrip1;
+		private ToolStripProgressBar toolStripProgressBarStatus;
 	}
 }
